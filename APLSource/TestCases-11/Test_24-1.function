@@ -1,0 +1,16 @@
+ R←Test_24(stopFlag batchFlag);⎕TRAP;myInstance;fn
+⍝ Create a new instance of an INI file, close the INI file and then check ⎕DF (no tie number!)
+ ⎕TRAP←(999 'C' '. ⍝ Deliberate error')(0 'N')
+ R←∆Failed
+ ⎕TRAP←(999 'C' '. ⍝ Deliberate error')(0 'N')
+
+ myInstance←⎕NEW ##.Logger
+ →FailsIf~'¯'∊⍕myInstance
+ fn←myInstance.filename
+ myInstance.Close
+ →∆TidyUp×⍳'¯'∊⍕myInstance
+
+∆TidyUp:
+ #.FilesAndDirs.DeleteFile fn
+
+ R←∆OK

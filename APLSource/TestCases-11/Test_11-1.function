@@ -1,0 +1,26 @@
+ R←Test_11(stopFlag batchFlag);path;myLogger;list;⎕TRAP
+⍝ Try to write strings/vector-of-strings/char matrix.Checks also a day switch.
+ R←∆Failed
+ ⎕TRAP←(999 'C' '. ⍝ Deliberate error')(0 'N')
+
+ path←GetFileRoot,'LogFiles'
+ :If #.FilesAndDirs.IsDir path
+     list←↑#.FilesAndDirs.Dir path,'/*.log'
+     #.FilesAndDirs.DeleteFile list
+ :EndIf
+ myLogger←⎕NEW ##.Logger(path'UTF8')
+ →FailsIf 0≠myLogger.errorCounter
+ myLogger.printToSession←1
+ myLogger.Log'this is my first entry!'
+ myLogger.Log'a' '...number...' '...of...' '...nested...' '...entries' '' 'By!'
+ myLogger.timestamp←2100 11 7 0 0 0
+ myLogger.Log'next day!'
+ →FailsIf 0≠myLogger.errorCounter
+
+ list←↑#.FilesAndDirs.Dir path,'\'
+ list/⍨←'.'≠↑¨list
+ list←{⍵↓⍨-1+'.'⍳⍨⌽⍵}¨list
+ →FailsIf 1≠1↑⍴list
+ myLogger.Close
+
+ R←∆OK

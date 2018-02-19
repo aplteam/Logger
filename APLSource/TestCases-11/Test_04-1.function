@@ -1,0 +1,31 @@
+ R←Test_04(stopFlag batchFlag);path;myLogger;list;⎕TRAP
+⍝ Call the constructor for just one parm, but NOT a command space.
+ R←∆Failed
+ ⎕TRAP←(999 'C' '. ⍝ Deliberate error')(0 'N')
+
+ list←↑#.FilesAndDirs.Dir GetFileRoot,'LogFiles\*.log'
+ #.FilesAndDirs.DeleteFile list
+
+ myLogger←⎕NEW ##.Logger(,⊂GetFileRoot,'LogFiles')
+ →FailsIf 0≠myLogger.errorCounter
+ myLogger.printToSession←1
+ myLogger.Log'this is my first entry!'
+ myLogger.Log'a' '...number...' '...of...' '...nested...' '...entries' '' 'By!'
+ myLogger.timestamp←2100 11 7 0 0 0
+ myLogger.Log'next day!'
+ →FailsIf 0≠myLogger.errorCounter
+
+ list←↑#.FilesAndDirs.Dir GetFileRoot,'LogFiles\*.log'
+ list/⍨←'.'≠↑¨list
+ list←{⍵↓⍨-'.'⍳⍨⌽⍵}¨list
+ →FailsIf 1≠1↑⍴list
+
+ :Trap 11
+     myLogger←⎕NEW ##.Logger(,⊂1) ⍝ Invalid!
+     →FailsIf 1
+ :Else
+     :If (11≠⎕EN)∨'Invalid parameters'≢0⊃⎕DM
+         →FailsIf 1
+     :EndIf
+ :EndTrap
+ R←∆OK
