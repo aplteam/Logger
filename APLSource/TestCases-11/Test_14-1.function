@@ -43,7 +43,7 @@
  :EndTrap
 
  list←↑#.FilesAndDirs.Dir path,'/*.log'
- ⎕←⊃#.APLTreeUtils.ReadUtf8File 0⊃list
+ →FailsIf 0∊⍴⊃#.APLTreeUtils.ReadUtf8File 0⊃list
 
  myLogger.Close
  list←↑#.FilesAndDirs.Dir path,'/*.log'

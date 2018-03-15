@@ -43,7 +43,7 @@
  list←{⍵↓⍨-1+'.'⍳⍨⌽⍵}¨list
  →FailsIf list≢,⊂'21001106'
 
- ⎕←⊃#.APLTreeUtils.ReadUtf8File path,'\',(0⊃list),'.log'
+ →FailsIf 0∊⍴#.APLTreeUtils.ReadUtf8File path,'\',(0⊃list),'.log'
 
  myLogger.Close
  list←↑#.FilesAndDirs.Dir path,'/*.log'

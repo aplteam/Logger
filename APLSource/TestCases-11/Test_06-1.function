@@ -15,7 +15,7 @@
  {myLogger.Log'hello universe in a thread! (',(⍕⍵),')'}&¨1+⍳noOfThreads
  :Repeat
      ⎕DL 0.01
- :Until 1=⎕←⍴⎕TNUMS
+ :Until 1=⍴⎕TNUMS
  →FailsIf 0≠myLogger.errorCounter
  myLogger.Close
 

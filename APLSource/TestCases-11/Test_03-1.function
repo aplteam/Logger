@@ -41,8 +41,7 @@
 
  →GoToTidyUp 0≠myLogger.errorCounter
 
- ⎕←fileContents←⊃#.APLTreeUtils.ReadUtf8File myLogger.FullFilename
-
+ fileContents←⊃#.APLTreeUtils.ReadUtf8File myLogger.FullFilename
  →GoToTidyUp 10≠+/questionMark⍷,fileContents
 
 ⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝ utf8←0
@@ -74,7 +73,7 @@
 
  →GoToTidyUp 0≠myLogger.errorCounter
 
- ⎕←fileContents←⊃#.APLTreeUtils.ReadUtf8File myLogger.FullFilename
+ fileContents←⊃#.APLTreeUtils.ReadUtf8File myLogger.FullFilename
  →GoToTidyUp 29≠+/'?'⍷,fileContents
 
  list←↑#.FilesAndDirs.Dir path,'/*.log'
@@ -110,7 +109,7 @@
 
  →GoToTidyUp 0≠myLogger.errorCounter
 
- ⎕←fileContents←⊃#.APLTreeUtils.ReadUtf8File myLogger.FullFilename
+ fileContents←⊃#.APLTreeUtils.ReadUtf8File myLogger.FullFilename
  →GoToTidyUp 0≠+/'?'⍷,fileContents
  →GoToTidyUp 0=∨/'{{⍵/⍨2=+⌿0=⍵∘.|⍵}⍳⍵}100000'⍷,fileContents
  →GoToTidyUp 0=∨/'üäöÜÄÖß'⍷,fileContents
@@ -221,7 +220,7 @@
 
  →GoToTidyUp 0≠myLogger.errorCounter
 
- ⎕←⊃fileContents←#.APLTreeUtils.ReadUtf8File myLogger.FullFilename
+ fileContents←#.APLTreeUtils.ReadUtf8File myLogger.FullFilename
 
  →GoToTidyUp shouldBe≢∆RemoveTimestampAndTid ¯1↓1↓fileContents
  R←∆OK

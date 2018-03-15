@@ -28,7 +28,7 @@
 
  →FailsIf 0≠myLogger.errorCounter
 
- ⎕←⊃buffer←#.APLTreeUtils.ReadUtf8File myLogger.FullFilename
+ buffer←#.APLTreeUtils.ReadUtf8File myLogger.FullFilename
  →FailsIf 3≠⍴buffer
 
  myLogger.Close

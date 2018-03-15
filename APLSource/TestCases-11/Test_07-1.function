@@ -38,7 +38,8 @@
 
  →FailsIf 0≠myLogger.errorCounter
 
- ⎕←⊃buffer←#.APLTreeUtils.ReadUtf8File myLogger.(path,filename)
+ buffer←#.APLTreeUtils.ReadUtf8File myLogger.(path,filename)
+ →FailsIf 0∊⍴buffer
 
  myLogger.Close
  list←↑#.FilesAndDirs.Dir path,'/*.log'

@@ -27,7 +27,7 @@
 
  →FailsIf 0≠myLogger.errorCounter
 
- ⎕←⊃buffer←#.APLTreeUtils.ReadUtf8File myLogger.FullFilename
+ buffer←#.APLTreeUtils.ReadUtf8File myLogger.FullFilename
  →FailsIf 3≠⍴buffer
  →FailsIf(#.FilesAndDirs.NormalizePath GetFileRoot,'LogFiles\PREFIX__',(⍕100⊥⎕TS[0 1]),'__POSTFIX.log')≢myLogger.FullFilename
 
@@ -53,7 +53,7 @@
 
  →FailsIf 0≠myLogger.errorCounter
 
- ⎕←⊃buffer←#.APLTreeUtils.ReadUtf8File myLogger.FullFilename
+ buffer←#.APLTreeUtils.ReadUtf8File myLogger.FullFilename
  →FailsIf 3≠⍴buffer
  →FailsIf(#.FilesAndDirs.NormalizePath GetFileRoot,'LogFiles/PREFIX____POSTFIX.log')≢myLogger.FullFilename
 
