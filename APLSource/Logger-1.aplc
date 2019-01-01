@@ -47,11 +47,8 @@
       ⍝ * 2.4.0
       ⍝   * Method `History` introduced.
       ⍝   * `Logger` is now managed by acre 3.
-      ⍝ * 2.3.0
-      ⍝   * New method `CreateParms` introduced which brings `Logger` in line with all other members
-      ⍝     of the APLTree project. `CreateProperySpace` is deprecated now but is still available.
-      ⍝   * The internal function in the namepsace created by `CreateParms` is now named `∆List` rather
-      ⍝     then `List` for the same reason.
+      ⍝\\
+      ⍝ For information regarding older versions see <https://github.com/aplteam/Logger/releases>
     ∇
 
 ⍝ --------------- Properties and Fields
