@@ -1,0 +1,21 @@
+ R←Test_25(stopFlag batchFlag);path;myLogger;list;⎕TRAP
+⍝ Test whether needed script (APLTreeUtuils, FilesAndDirs) are found
+ R←T._Failed
+ ⎕TRAP←(999 'C' '. ⍝ Deliberate error')(0 'N')
+
+ path←GetFileRoot,'LogFiles'
+ :If ##.FilesAndDirs.IsDir path
+     →T.FailsIf 0≠0⊃##.FilesAndDirs.RmDir path ⍝ Could not remove the directory "path" is pointing too?!'
+ :EndIf
+
+ myLogger←⎕NEW ##.Logger(path'ASCII' 'DATE' 1(2100 11 6))
+ →T.GoToTidyUp 0≠myLogger.errorCounter
+ myLogger.printToSession←1
+ myLogger.Log'this is my first entry!'
+ →T.GoToTidyUp 0≠myLogger.errorCounter
+ R←T._OK
+
+∆TidyUp:
+ myLogger.Close
+ list←↑##.FilesAndDirs.Dir path,'/*.log'
+ ##.FilesAndDirs.DeleteFile list

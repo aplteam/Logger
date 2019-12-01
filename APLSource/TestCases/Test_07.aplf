@@ -1,0 +1,50 @@
+ R←Test_07(stopFlag batchFlag);path;isUnicode;list;parmSpace;msg;myLogger;buffer;⎕TRAP
+⍝ This test case sets virtually all possible parameters.
+ R←T._Failed
+ ⎕TRAP←(999 'C' '. ⍝ Deliberate error')(0 'N')
+
+ path←GetFileRoot,'LogFiles'
+ isUnicode←80=⎕DR' '
+ :If ##.FilesAndDirs.IsDir path
+     list←↑##.FilesAndDirs.Dir path,'/*.log'
+     ##.FilesAndDirs.DeleteFile list
+ :EndIf
+
+ parmSpace←##.Logger.CreatePropertySpace
+ parmSpace.encoding←'UTf8'
+ parmSpace.debug←1
+ parmSpace.filenamePrefix←'PREFIX_'
+ parmSpace.filenamePostfix←'_POSTFIX'
+ parmSpace.path←GetFileRoot,'LogFiles'
+ parmSpace.printToSession←1
+ parmSpace.active←1
+ parmSpace.autoReOpen←0
+ parmSpace.errorPrefix←'Oh dear! :'
+ parmSpace.extension←'foo'
+ parmSpace.filenameType←'Year'
+ parmSpace.filename←'mylog'
+
+ myLogger←⎕NEW ##.Logger(,⊂parmSpace)
+ →T.FailsIf 0≠myLogger.errorCounter
+
+ msg←'There is no problem'
+ myLogger.Log msg
+
+ msg←'This statement caused a WS FULL: {{⍵/⍨2=+⌿0=⍵∘.|⍵}⍳⍵}100000'
+ myLogger.Log msg
+
+ msg←'These chars are all encoded in 8 bits: üäöÜÄÖß'
+ myLogger.Log msg
+
+ →T.FailsIf 0≠myLogger.errorCounter
+
+ buffer←##.APLTreeUtils.ReadUtf8File myLogger.(path,filename)
+ →T.FailsIf 0∊⍴buffer
+
+ myLogger.Close
+ list←↑##.FilesAndDirs.Dir path,'/*.log'
+ ##.FilesAndDirs.DeleteFile list
+ list←↑##.FilesAndDirs.Dir path,'/*.foo'
+ ##.FilesAndDirs.DeleteFile list
+
+ R←T._OK

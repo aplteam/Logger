@@ -1,0 +1,50 @@
+ R←Test_12(stopFlag batchFlag);path;myLogger;list;cs;buffer;fn;⎕TRAP
+⍝ Checks whether "active" is working properly.
+ R←T._Failed
+ ⎕TRAP←(999 'C' '. ⍝ Deliberate error')(0 'N')
+
+ path←GetFileRoot,'LogFiles'
+ :If ##.FilesAndDirs.IsDir path
+     list←↑##.FilesAndDirs.Dir path,'/*.log'
+     ##.FilesAndDirs.DeleteFile list
+ :EndIf
+
+ cs←##.Logger.CreatePropertySpace
+ cs.printToSession←1
+ cs.active←0
+ cs.encoding←'UTf8'
+ cs.path←GetFileRoot,'LogFiles'
+ myLogger←⎕NEW ##.Logger(,⊂cs)
+ →T.FailsIf 0≠myLogger.errorCounter
+ myLogger.Log'this is my first entry!'          ⍝ not supposed to appear in the log file because of active←0
+ myLogger.LogError 1 'Second entry' 'more'      ⍝ ditto
+
+ :If ##.FilesAndDirs.IsDir path
+     list←↑##.FilesAndDirs.Dir path,'/*.log'
+     →T.FailsIf~0∊⍴list
+ :EndIf
+
+ myLogger.active←1
+ myLogger.Log'Third entry'
+ myLogger.LogError 1('Forth entry' 'Really')'more'
+ myLogger.active←0
+ myLogger.Log'Fifth entry'
+ myLogger.LogError 1 'Last entry (number 6)' 'more'
+
+ →T.FailsIf 0≠myLogger.errorCounter
+
+ :If ##.FilesAndDirs.IsDir path
+     list←↑##.FilesAndDirs.Dir path,'/*.log'
+     →T.FailsIf(,1)≢⍴list
+ :EndIf
+
+ fn←myLogger.FullFilename
+ myLogger.Close
+ buffer←##.APLTreeUtils.ReadUtf8File fn
+ buffer←(0<↑∘⍴¨buffer)/buffer
+ →T.FailsIf 5≠⍴buffer ⍝ Because all other line were suppressed by active←0
+ →T.FailsIf~∧/∨/¨'ERROR' 'Third' 'Forth'⍷¨⊂{⎕ML←3 ⋄ ∊⍵}buffer
+
+ ##.FilesAndDirs.DeleteFile list
+
+ R←T._OK

@@ -1,0 +1,56 @@
+ R←Test_17(stopFlag batchFlag);path;rc;msg;buffer;more;myLogger;⎕TRAP;list;timestamp;fts;fileContents
+⍝ This test writes data with LogError and reads the data back for comparison.
+ R←T._Failed
+ ⎕TRAP←(999 'C' '. ⍝ Deliberate error')(0 'N')
+
+ path←GetFileRoot,'LogFiles' ⍝ relative!
+ :If ##.FilesAndDirs.IsDir path
+     list←↑##.FilesAndDirs.Dir path,'/*.log'
+     ##.FilesAndDirs.DeleteFile list
+ :EndIf
+
+ timestamp←2100 11 6 23 59 55
+ fts←' ',⍨##.APLTreeUtils.FormatDateTime timestamp    ⍝ Formatted timestamp
+ myLogger←⎕NEW ##.Logger(path'ascii' 'DATE' 1 timestamp ##)
+ →T.FailsIf 0≠myLogger.errorCounter
+ myLogger.printToSession←1
+ myLogger.errorPrefix←'###'
+ buffer←''
+
+ rc←2
+
+ more←'There really is a problem'
+ msg←'Big problem'
+ myLogger.LogError rc msg more
+ buffer,←⊂'RC=',(⍕rc),'; ',msg
+ buffer,←⊂more
+
+ msg←'There is another problem'
+ more←'More -1-' 'More -2-' 'More -3-'
+ myLogger.LogError rc msg more
+ buffer,←⊂'RC=',(⍕rc),'; ',msg
+ buffer,←more
+
+ msg←'There is a problem'
+ more←'A really big problem'(2 3⍴⍳6)
+ myLogger.LogError rc msg more
+ buffer,←⊂'RC=',(⍕rc),'; ',msg
+ buffer,←⊃,/{2=⍴⍴⍵:↓⍵ ⋄ ⊂⍵}¨⍕¨more
+
+ myLogger.LogError rc('123',¨msg msg msg)
+ buffer,←⊂'RC=',(⍕rc),'; 1',msg
+ buffer,←'23',¨msg msg
+
+ myLogger.LogError rc(⊃'456',¨msg msg msg)
+ buffer,←⊂'RC=',(⍕rc),'; 4',msg
+ buffer,←'56',¨msg msg
+
+ fileContents←1↓¯1↓##.APLTreeUtils.ReadUtf8File myLogger.FullFilename
+
+ →T.FailsIf(⎕FMT⊃buffer~¨⊂' #')≢(⊃(∆RemoveTimestampAndTid fileContents)~¨⊂' #')
+
+ myLogger.Close
+ list←↑##.FilesAndDirs.Dir path,'/*.log'
+ ##.FilesAndDirs.DeleteFile list
+
+ R←T._OK

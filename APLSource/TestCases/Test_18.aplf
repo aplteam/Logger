@@ -1,0 +1,29 @@
+ R←Test_18(stopFlag batchFlag);path;isUnicode;list;parmSpace;msg;myLogger;buffer;⎕TRAP
+⍝ This test case tries to set filename together with autoReOpen=1 which is not permitted.
+ R←T._Failed
+ ⎕TRAP←(999 'C' '. ⍝ Deliberate error')(0 'N')
+
+ path←GetFileRoot,'LogFiles' ⍝ relative!
+ isUnicode←80=⎕DR' '
+ :If ##.FilesAndDirs.IsDir path
+     list←↑##.FilesAndDirs.Dir path,'/*.log'
+     ##.FilesAndDirs.DeleteFile list
+ :EndIf
+
+ parmSpace←##.Logger.CreatePropertySpace
+ parmSpace.debug←1
+ parmSpace.filename←'Foo'
+ parmSpace.autoReOpen←1
+
+ :Trap 0
+     myLogger←⎕NEW ##.Logger(,⊂parmSpace)
+     →T.FailsIf 1
+ :Else
+     →T.FailsIf'"filename" MUST NOT be set with autoReOpen=1'≢0⊃⎕DM
+ :EndTrap
+
+ :Trap 0 ⋄ myLogger.Close ⋄ :EndTrap
+ list←↑##.FilesAndDirs.Dir path,'/*.log'
+ ##.FilesAndDirs.DeleteFile list
+
+ R←T._OK

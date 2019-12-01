@@ -1,0 +1,120 @@
+ R←Test_08(stopFlag batchFlag);path;list;parmSpace;msg;myLogger;buffer;⎕TRAP
+⍝ Tests all flavors of "filenameType" together with autoReopen ##.Logger
+ R←T._Failed
+ ⎕TRAP←(999 'C' '. ⍝ Deliberate error')(0 'N')
+
+ path←GetFileRoot,'LogFiles'
+ :If ##.FilesAndDirs.IsDir path
+     list←↑##.FilesAndDirs.Dir path,'/*.*'
+     ##.FilesAndDirs.DeleteFile list
+ :EndIf
+
+ parmSpace←##.Logger.CreatePropertySpace
+ parmSpace.autoReOpen←0
+ parmSpace.filename←'TestLogFile'
+ parmSpace.path←GetFileRoot,'LogFiles'
+ parmSpace.debug←1
+ parmSpace.filenameType←'DATE'
+ parmSpace.timestamp←2000 1 31 23 59 50
+
+ myLogger←⎕NEW ##.Logger(,⊂parmSpace)
+ →T.FailsIf 0≠myLogger.errorCounter
+ myLogger.timestamp←2000 2 1 1 2 3
+
+ msg←'There is no problem'
+ myLogger.Log msg
+
+ →T.FailsIf 0≠myLogger.errorCounter
+
+ myLogger.Close
+ list←↑##.FilesAndDirs.Dir path,'/*.log'
+ →T.FailsIf 1≠⍴list   ⍝ AutoReopen was 0?!
+ ##.FilesAndDirs.DeleteFile list
+
+ parmSpace←##.Logger.CreatePropertySpace
+ parmSpace.autoReOpen←1
+ parmSpace.path←GetFileRoot,'LogFiles'
+ parmSpace.debug←1
+ parmSpace.filenameType←'DATE'
+ parmSpace.timestamp←2000 1 30 23 59 50
+
+ myLogger←⎕NEW ##.Logger(,⊂parmSpace)
+ →T.FailsIf 0≠myLogger.errorCounter
+ msg←'There is no problem'
+ myLogger.Log msg
+ myLogger.timestamp←2000 1 31 1 2 3
+ msg←'There is still no problem'
+ myLogger.Log msg
+
+ →T.FailsIf 0≠myLogger.errorCounter
+
+ myLogger.Close
+ list←↑##.FilesAndDirs.Dir path,'/*.log'
+ →T.FailsIf 2≠⍴list  ⍝ must have been re-opened once
+ ##.FilesAndDirs.DeleteFile list
+
+ parmSpace←##.Logger.CreatePropertySpace
+ parmSpace.autoReOpen←1
+ parmSpace.path←GetFileRoot,'LogFiles'
+ parmSpace.debug←1
+ parmSpace.filenameType←'YEAR'
+ parmSpace.timestamp←2000 1 31 23 59 50
+
+ myLogger←⎕NEW ##.Logger(,⊂parmSpace)
+ →T.FailsIf 0≠myLogger.errorCounter
+ msg←'There is no problem'
+ myLogger.Log msg
+ myLogger.timestamp←2001 1 1 1 2 3
+ msg←'There is still no problem'
+ myLogger.Log msg
+
+ →T.FailsIf 0≠myLogger.errorCounter
+
+ myLogger.Close
+ list←↑##.FilesAndDirs.Dir path,'/*.log'
+ →T.FailsIf 2≠⍴list   ⍝ Must have been re-opened once
+ ##.FilesAndDirs.DeleteFile list
+
+ parmSpace←##.Logger.CreatePropertySpace
+ parmSpace.autoReOpen←1
+ parmSpace.path←GetFileRoot,'LogFiles'
+ parmSpace.debug←1
+ parmSpace.filenameType←'MONTH'
+ parmSpace.timestamp←2000 1 31 23 59 50
+
+ myLogger←⎕NEW ##.Logger(,⊂parmSpace)
+ →T.FailsIf 0≠myLogger.errorCounter
+ msg←'There is no problem'
+ myLogger.Log msg
+ myLogger.timestamp←2000 2 1 1 2 3
+ msg←'There is still no problem'
+ myLogger.Log msg
+
+ →T.FailsIf 0≠myLogger.errorCounter
+
+ myLogger.Close
+ list←↑##.FilesAndDirs.Dir path,'/*.log'
+ →T.FailsIf 2≠⍴list   ⍝ Must have been re-opened once
+ ##.FilesAndDirs.DeleteFile list
+
+ parmSpace←##.Logger.CreatePropertySpace
+ parmSpace.autoReOpen←1
+ parmSpace.path←GetFileRoot,'LogFiles'
+ parmSpace.filenameType←'FOO'
+
+ :Trap 11
+     myLogger←⎕NEW ##.Logger(,⊂parmSpace)
+     →T.FailsIf 1
+ :Else
+     :If '⍎Invalid filenameType'≢0⊃⎕DM
+         →T.FailsIf 1
+     :EndIf
+ :EndTrap
+
+ myLogger.Close
+ :If ##.FilesAndDirs.IsDir path
+     list←↑(##.FilesAndDirs.Dir path,'/*.*')~,¨'.' '..'
+     ##.FilesAndDirs.DeleteFile list
+ :EndIf
+
+ R←T._OK

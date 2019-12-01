@@ -1,2 +1,0 @@
- r←GetFileRoot
- r←#.FilesAndDirs.GetTempPath,'Logger_TestCases',#.FilesAndDirs.CurrentSep

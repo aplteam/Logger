@@ -1,0 +1,26 @@
+ R←Test_10(stopFlag batchFlag);myLogger;list;⎕TRAP
+⍝ Simplest possible log file.
+ R←T._Failed
+ ⎕TRAP←(999 'C' '. ⍝ Deliberate error')(0 'N')
+
+ list←↑##.FilesAndDirs.Dir'*.log'
+ ##.FilesAndDirs.DeleteFile list
+ myLogger←⎕NEW ##.Logger
+ →T.FailsIf 0≠myLogger.errorCounter
+ myLogger.printToSession←1
+ myLogger.Log'this is my first entry!'
+ myLogger.Log'a' '...number...' '...of...' '...nested...' '...entries' '' 'By!'
+ myLogger.timestamp←2100 11 7 0 0 0
+ myLogger.Log'next day!'
+ →T.FailsIf 0≠myLogger.errorCounter
+
+ list←↑##.FilesAndDirs.Dir'*.log'
+ list/⍨←'.'≠↑¨list
+ list←{⍵↓⍨-1+'.'⍳⍨⌽⍵}¨list
+ →T.FailsIf 1≠1↑⍴list
+
+ myLogger.Close
+ list←↑##.FilesAndDirs.Dir'*.log'
+ ##.FilesAndDirs.DeleteFile list
+
+ R←T._OK

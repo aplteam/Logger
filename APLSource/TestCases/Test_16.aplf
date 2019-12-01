@@ -1,0 +1,35 @@
+ R←Test_16(stopFlag batchFlag);path;msg;buffer;myLogger;⎕TRAP;fileContents;list
+⍝ This test writes data and reads the data back for comparison with Log.
+ R←T._Failed
+ ⎕TRAP←(999 'C' '. ⍝ Deliberate error')(0 'N')
+
+ path←GetFileRoot,'LogFiles'
+ :If ##.FilesAndDirs.IsDir path
+     list←↑##.FilesAndDirs.Dir path,'/*.log'
+     ##.FilesAndDirs.DeleteFile list
+ :EndIf
+
+ myLogger←⎕NEW ##.Logger(path'ascii' 'DATE' 1(2100 11 6 23 59 55)##)
+ →T.FailsIf 0≠myLogger.errorCounter
+ myLogger.printToSession←1
+
+ msg←'There is no problem'
+
+ myLogger.Log msg
+ buffer←⊂msg
+
+ myLogger.Log(msg msg msg)
+ buffer,←msg msg msg
+
+ myLogger.Log(⊃msg msg msg)
+ buffer,←msg msg msg
+
+ fileContents←¯1↓##.APLTreeUtils.ReadUtf8File myLogger.FullFilename
+
+ →T.FailsIf buffer≢∆RemoveTimestampAndTid 1↓fileContents
+
+ myLogger.Close
+ list←↑##.FilesAndDirs.Dir path,'/*.log'
+ ##.FilesAndDirs.DeleteFile list
+
+ R←T._OK

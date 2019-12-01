@@ -1,0 +1,37 @@
+ R←Test_01(stopFlag batchFlag);path;myLogger;list;⎕TRAP;fileContents;buffer;shouldBe
+⍝ Try to write different data types: char, integers and floats.
+ R←T._Failed
+ ⎕TRAP←(999 'C' '. ⍝ Deliberate error')(0 'N')
+
+ path←GetFileRoot,'LogFiles'
+ :If ##.FilesAndDirs.IsDir path
+     →T.FailsIf 0≠0⊃##.FilesAndDirs.RmDir path ⍝ Could not remove the directory "path" is pointing too?!'
+ :EndIf
+ shouldBe←''
+
+ myLogger←⎕NEW ##.Logger(path'ASCII' 'DATE' 1(2100 11 6))   ⍝ ASCII is deprecated since version 2.1 bu still allowed
+ →T.GoToTidyUp 0≠myLogger.errorCounter
+ myLogger.printToSession←1
+ myLogger.Log buffer←'this is my first entry!'
+ shouldBe,←⊂buffer
+ →T.GoToTidyUp 0≠myLogger.errorCounter
+ myLogger.Log buffer←'a' ⍝ a scalar
+ shouldBe,←⊂,buffer
+ →T.GoToTidyUp 0≠myLogger.errorCounter
+ myLogger.Log buffer←⍕1 2 3
+ shouldBe,←⊂,buffer
+ →T.GoToTidyUp 0≠myLogger.errorCounter
+
+ fileContents←##.APLTreeUtils.ReadUtf8File myLogger.(path,filename)
+ →T.GoToTidyUp shouldBe≢∆RemoveTimestampAndTid ¯1↓1↓fileContents
+
+ list←↑##.FilesAndDirs.Dir path,'/*.log'
+ R←T._OK
+
+∆TidyUp:
+ :Trap 0
+     myLogger.Close
+ :EndTrap
+ :Trap 0
+     ##.FilesAndDirs.DeleteFile list
+ :EndTrap

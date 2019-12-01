@@ -1,4 +1,0 @@
- ∆RemoveTimestampAndTid←{
-⍝ First column=Timestamp, second=Thread number
-     ⍵↓¨⍨1++/2≥+\' '=↑⍵
- }
