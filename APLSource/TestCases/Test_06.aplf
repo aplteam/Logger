@@ -8,7 +8,7 @@
      →T.FailsIf 0≠0⊃##.FilesAndDirs.RmDir path   ⍝ Could not remove the directory "path" is pointing too?!'
  :EndIf
 
- myLogger←⎕NEW ##.Logger(path'ANSI' 'DATE' 1(2100 11 6)##)
+ myLogger←⎕NEW ##.Logger(path'ANSI' 'DATE' 1(2100 11 6))
  →T.FailsIf 0≠myLogger.errorCounter
  myLogger.printToSession←0
  noOfThreads←1000

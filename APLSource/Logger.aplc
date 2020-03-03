@@ -10,7 +10,7 @@
 ⍝
 ⍝ ## Syntax
 ⍝ ~~~
-⍝ ⎕NEW Logger ([path encoding filenameType debug timestamp refToUtils])
+⍝ ⎕NEW Logger ([path encoding filenameType debug timestamp])
 ⍝ ⎕NEW Logger
 ⍝ ⎕NEW Logger (,⊂ParameterSpace)
 ⍝ ⎕NEW Logger
@@ -39,13 +39,14 @@
 
     ∇ r←Version
       :Access Public shared
-      r←(Last⍕⎕THIS)'2.5.2.6' '2019-12-01'
+      r←(Last⍕⎕THIS)'3.0.0.12' '2020-03-03'
     ∇
 
     ∇ History
       :Access Public shared
-      ⍝ * 2.5.2
-      ⍝   * Finding `FilesAndDirs` improved.
+      ⍝ * 3.0.0
+      ⍝   * `refToUtils` removed. Dependencies are now expected to be siblings of `Logger`.
+      ⍝   * ANSI Encoding stumbled over the `^` character and added an unnessecary warning to the log
       ⍝ For information regarding older versions see <https://github.com/aplteam/Logger/releases>
     ∇
 
@@ -134,27 +135,6 @@
         ∇
     :EndProperty
 
-    :Property refToUtils
-    ⍝ The `Logger` class needs a couple of scripts:
-    ⍝ * `FilesAndDirs`
-    ⍝ * `APLTreeUtils`
-    ⍝
-    ⍝ While `APLTreeUtils` **must** be situated in the same namespace as `Logger` because it's :Included,
-    ⍝ `Logger` looks for `FilesAndDirs` at several places: it will find it automatically if
-    ⍝ it is situated either in the same namespace as `Logger` itself or in `#` or where
-    ⍝ `Logger` got instanciated from. If this is not appropriate for you, you **must**
-    ⍝  set `refToUtils` to the namespace which keeps `FilesAndDirs`.
-    ⍝ However, you are discouraged for actully setting this property since the places where `Logger`
-    ⍝ tries to find it should be sufficient. The property remains available for compatibility reasons.
-    :Access Public Instance
-        ∇ r←get
-          r←_refToUtils
-        ∇
-        ∇ set arg
-          _refToUtils←arg.NewValue
-        ∇
-    :EndProperty
-
     :Property timestamp
     ⍝ Use this for debugging purposes only: if `timestamp` is not empty it is used instead of
     ⍝ `⎕TS`. Useful to test the "re-open" feature, for example.\\
@@ -165,7 +145,7 @@
           r←_timestamp
         ∇
         ∇ set arg
-          →(0∊⍴,arg.NewValue)/0
+          →(0=≢,arg.NewValue)/0
           'Invalid time stamp'⎕SIGNAL 11/⍨~(⍴,arg.NewValue)∊3 6
           'Invalid time stamp'⎕SIGNAL 11/⍨∨/~(⎕DR¨arg.NewValue)∊163 83
           _timestamp←6↑arg.NewValue
@@ -341,13 +321,7 @@
               11 ⎕SIGNAL⍨'Invalid keyword(s): ',↑{⍺,',',⍵}/bool/list
           :EndIf
           'Missing: "active"'⎕SIGNAL 1/⍨~(⊂'active')∊list
-          :If 9=pathOrParameterSpace.⎕NC'refToUtils'
-              _refToUtils←pathOrParameterSpace.refToUtils  ⍝ we need this in some setters/getters
-          :EndIf
-          :If 0∊⍴⍕refToUtils
-              'Missing: "refToUtils"'⎕SIGNAL 6
-          :EndIf
-          :For this :In {⍵,'←',{' '=1↑0⍴⍵:'''',⍵,'''' ⋄ ⍵≡⍬:'⍬' ⋄ ⍕⍵}pathOrParameterSpace.⍎⍵}¨list~'filename' 'path' 'encoding' 'refToUtils'
+          :For this :In {⍵,'←',{' '=1↑0⍴⍵:'''',⍵,'''' ⋄ ⍵≡⍬:'⍬' ⋄ ⍕⍵}pathOrParameterSpace.⍎⍵}¨list~'filename' 'path' 'encoding' 
               ⍎this ⍝ not eached for easier debugging
           :EndFor
           :If (⊂'filename')∊list
@@ -357,11 +331,11 @@
               _path←ProcessPath pathOrParameterSpace.path
           :EndIf
           :If (⊂'encoding')∊list
-              :If 0∊⍴_encoding←ProcessEncoding pathOrParameterSpace.encoding
+              :If 0=≢_encoding←ProcessEncoding pathOrParameterSpace.encoding
                   'Invalid value: "encoding"'⎕SIGNAL 11
               :EndIf
           :EndIf
-          :If 0∊⍴_filename,_filenamePostfix,_filenamePrefix,_filenameType
+          :If 0=≢_filename,_filenamePostfix,_filenamePrefix,_filenameType
               'No "filenameType" specified but no "filename", "filenamePostfix", "filenamePrefix" either'⎕SIGNAL 11
           :EndIf
       :ElseIf ' '≠1↑0⍴∊pathOrParameterSpace
@@ -380,7 +354,7 @@
       :Implements Constructor
       constructorIsRunning←1
       InitialyzeProperties
-      :If 0∊⍴_encoding←ProcessEncoding encoding_
+      :If 0=≢_encoding←ProcessEncoding encoding_
           'Invalid: "encoding"'⎕SIGNAL 11
       :EndIf
       _path←ProcessPath path_
@@ -412,7 +386,7 @@
       constructorIsRunning←1
       InitialyzeProperties
       _path←ProcessPath path_
-      :If 0∊⍴_encoding←ProcessEncoding encoding_
+      :If 0=≢_encoding←ProcessEncoding encoding_
           'Invalid: "encoding"'⎕SIGNAL 11
       :EndIf
       filenameType←filenameType_
@@ -430,28 +404,7 @@
       constructorIsRunning←1
       InitialyzeProperties
       _path←ProcessPath path_
-      :If 0∊⍴_encoding←ProcessEncoding encoding_
-          'Invalid: "encoding"'⎕SIGNAL 11
-      :EndIf
-      filenameType←filenameType_
-      debug←debug_
-      timestamp←timestamp_
-      (_errorCounter msg)←Create ⍬
-      SetDisplayFormat
-      msg ⎕SIGNAL 11/⍨_errorCounter
-    ∇
-
-    ∇ make6(path_ encoding_ filenameType_ debug_ timestamp_ refToUtils_);constructorIsRunning;msg
-    ⍝ `refToUtils` must be a ref to the namespace which contains `FilesAndDirs`.
-      :Access Public Instance
-      :Implements Constructor
-      constructorIsRunning←1
-      InitialyzeProperties
-      :If 0≠≢refToUtils_
-          _refToUtils←refToUtils_
-      :EndIf
-      _path←ProcessPath path_
-      :If 0∊⍴_encoding←ProcessEncoding encoding_
+      :If 0=≢_encoding←ProcessEncoding encoding_
           'Invalid: "encoding"'⎕SIGNAL 11
       :EndIf
       filenameType←filenameType_
@@ -472,7 +425,6 @@
       _autoReOpen←1             ⍝ re-opens log file with a new name according to the "filenameType"
       _filenameType←'DATE'      ⍝ default filenameType is "yyyymmdd" which is re-opened daily
       _printToSession←0         ⍝ If this is 1, every entry is printed to the session as well
-      _refToUtils←FindPathTo'FilesAndDirs'
       _path←''                  ⍝ Directory the log file will go into; empty=current dir
       _filename←''              ⍝ the actual name
       _timestamp←⍬              ⍝ To simulate []TS; ignored when debug=0
@@ -484,24 +436,16 @@
       _tieNumber←⍬              ⍝ Tie number of the log file or ⍬
     ∇
 
-    ∇ {(r msg)}←Create dummy;rc;hint;newFilename;flag
+    ∇ {(r msg)}←Create dummy;rc;hint;newFilename
     ⍝ Is called by the "official" constructors but is private, strictly speaking.
       r←0
       msg←''
-      flag←9≠_refToUtils.⎕NC'FilesAndDirs'
-      :If ~0∊⍴_filename
+      F←⍎(⍕FindPathTo 'FilesAndDirs'),'.FilesAndDirs'
+      :If 0≠≢_filename
       :AndIf _autoReOpen
           r←1
           msg←'"filename" MUST NOT be set with autoReOpen=1'
           :Return
-      :EndIf
-      :If flag
-          msg←'Not found: script "FilesAndDirs"'
-          :If _debug
-              msg ⎕SIGNAL 6
-              :Else flag
-              →0,r←1
-          :EndIf
       :EndIf
       (r msg)←Open ⍬
     ⍝Done
@@ -533,7 +477,6 @@
       r.filenameType←_filenameType
       r.path←_path
       r.printToSession←_printToSession
-      r.refToUtils←_refToUtils
       r.timestamp←_timestamp
       r.⎕FX'r←∆List;⎕IO' '⍝ List all variables and possible references in this namespace' '⎕IO←0' 'r←{⍵,[0.5]⍎¨⍵}'' ''~¨⍨↓⎕NL 2 9'
     ∇
@@ -599,7 +542,7 @@
       :If _active∧0≠rc
           msg←MassageErrorMessage msg
           (msg more)←ApplyMakeUp rc msg more
-          →(0∊⍴msg,more)/0
+          →(0=≢msg,more)/0
           :Trap 0
               :If _fileFlag
                   timestamp←Timestamp 1
@@ -622,12 +565,12 @@
       :Trap SetTrap 0
           :If _autoReOpen
               filename←(8↑Timestamp 0)↑⍨('DATE' 'MONTH' 'YEAR'⍳⊂_filenameType)⊃8 6 4 0
-          :ElseIf ~0∊⍴_filename
+          :ElseIf 0≠≢_filename
               filename←_filename
           :EndIf
-          filename←_filenamePostfix{0∊⍴⍺:⍵ ⋄ ⍵,'_',⍺}filename
-          filename←_filenamePrefix{0∊⍴⍺:⍵ ⋄ ⍺,'_',⍵}filename
-          'No log filename specified and autoReOpen is 0'⎕SIGNAL 11/⍨0∊⍴filename
+          filename←_filenamePostfix{0=≢⍺:⍵ ⋄ ⍵,'_',⍺}filename
+          filename←_filenamePrefix{0=≢⍺:⍵ ⋄ ⍺,'_',⍵}filename
+          'No log filename specified and autoReOpen is 0'⎕SIGNAL 11/⍨0=≢filename
       :Else
           :If _debug
               . ⍝ something is wrong here
@@ -651,7 +594,7 @@
     ∇ r←Timestamp decoratorFlag;ts
 ⍝ 1=decoratorFlag ←→ yyyy-mm-dd hh:mm:ss
 ⍝ 0=decoratorFlag ←→ yyyymmddhhmmss
-      :If ~0∊⍴_timestamp
+      :If 0≠≢_timestamp
       :AndIf _debug
           ts←6↑_timestamp
       :Else
@@ -673,7 +616,7 @@
       :If _active∧_fileFlag
           :Trap SetTrap 0
               _filenameType←Uppercase _filenameType
-              :If 0∊⍴newFilename
+              :If 0=≢newFilename
                   (rc hint newFilename)←MakeNewFilename''
                   :If 0≠rc
                       msg←'Could not create new filename from "filenameType" and "path"'
@@ -688,8 +631,8 @@
                   newFilename,←'.',_extension
               :EndIf
               _filename←newFilename
-              :If ~0∊⍴_path
-                  :If ~'CREATE!'_refToUtils.FilesAndDirs.CheckPath _path
+              :If 0≠≢_path
+                  :If ~'CREATE!'F.CheckPath _path
                       msg←'Could not open the log file, check the path'
                       :If _debug
                           msg ⎕SIGNAL 11
@@ -701,7 +644,7 @@
               ⎕RL←+/⎕TS
               fno←-?99999999 ⍝ See "Close" for details why we are doing this!
               :Trap 0
-                  _fileDescriptor←FullFilename refToUtils.FilesAndDirs.NCREATE fno
+                  _fileDescriptor←FullFilename F.NCREATE fno
               :Case 22
                   :Trap SetTrap 0
                       _fileDescriptor←FullFilename ⎕NTIE fno ⍝ 66 ⍝ grant all to all!
@@ -732,7 +675,7 @@
      ⍝ | `r←1` | if the log file needs to be re-opened.
      ⍝ | r←¯1` | in case of an error.
       newFilename←''
-      :If r←~0∊⍴,_autoReOpen
+      :If r←0≠≢,_autoReOpen
           (rc hint newFilename)←MakeNewFilename _filename
           :If 0≠rc
               :If _debug
@@ -741,7 +684,7 @@
                   →0,r←¯1
               :EndIf
           :EndIf
-          :If (0∊⍴,newFilename)∨~_autoReOpen
+          :If (0=≢,newFilename)∨~_autoReOpen
               r←0
           :Else
               string←(⍴_filenamePrefix)↓_filename
@@ -773,7 +716,7 @@
     ∇ r←FullFilename
       :Access Public Instance
     ⍝ Returns the fully qualified file name of the log file: path+filename.
-      r←refToUtils.FilesAndDirs.NormalizePath _path,_filename
+      r←F.NormalizePath _path,_filename
     ∇
 
 ⍝ --------------- Private stuff
@@ -793,7 +736,7 @@
     ∇
 
       ProcessPath←{
-          0∊⍴⍵:''
+          0=≢⍵:''
           ⍵,(~'\/'∊⍨¯1↑⍵)/'/'  ⍝ append / if appropriate
       }
 
@@ -821,7 +764,7 @@
           txt←⎕UCS¨'UTF-8'∘⎕UCS¨txt
       :Else
           :If _encoding≡'ANSI'
-              ansi←'1234567890qwertyuiopasdfghjklzxcvbnmQWERTYUIOPASDFGHJKLZXCVBNM!"$%∧&*()-_=+]}[{#~''@;:/?.>,<\| ',⎕UCS 8 13 10
+              ansi←'1234567890qwertyuiopasdfghjklzxcvbnmQWERTYUIOPASDFGHJKLZXCVBNM!"$%^&*()-_=+]}[{#~''@;:/?.>,<\| ',⎕UCS 8 13 10
               txt←ansi∘{0=+/bool←~(w←⍵)∊⍺:w ⋄ (bool/w)←'?' ⋄ w}¨,¨txt
           :Else
               txt←{~(⎕DR ⍵)∊80 160:⍕⍵ ⋄ 0=+/bool←128<⎕UCS w←⍵:⍵ ⋄ (bool/w)←'¿' ⋄ w}¨,¨txt  ⍝ replace non-ansi chars by "¿"
@@ -834,7 +777,7 @@
       ⎕TRAP←(⊂999 'N'),⎕TRAP
       r←''
       msg←msg,¨⊂CrLf
-      :If 0∊⍴_fileDescriptor
+      :If 0=≢_fileDescriptor
           :If _debug
               'Log file was already closed rc=11'⎕SIGNAL 999
           :Else
@@ -915,7 +858,7 @@
           :EndIf
       :EndTrap
       :Trap 0
-          :If 0∊⍴∊more
+          :If 0=≢∊more
               more←''
           :Else
               more←(1+⍴,_errorPrefix)∘AddTrailingBlanks¨more
@@ -931,7 +874,7 @@
     ∇
 
       AddTrailingBlanks←{
-          0∊⍴⍵:⍵
+          0=≢⍵:⍵
           0 1∊⍨≡⍵:(⍺⍴' '),,⎕FMT ⍵
           2=⍴⍴⍵:↓⍵
           ⍺{(((1⊃⍴⍵),⍺-1)⍴' '),⍵}⎕FMT,[1.5]⍵
@@ -955,7 +898,7 @@
       :If 0<⎕NC'_fileDescriptor'
       :AndIf ⍬≢_fileDescriptor
       :AndIf _fileDescriptor∊⎕NNUMS
-      :AndIf (refToUtils.FilesAndDirs.NormalizePath _path,_filename)≡(⎕NNUMS⍳_fileDescriptor)⊃refToUtils.FilesAndDirs.NNAMES
+      :AndIf (F.NormalizePath _path,_filename)≡(⎕NNUMS⍳_fileDescriptor)⊃F.NNAMES
           ⎕NUNTIE _fileDescriptor
           _fileDescriptor←⍬
           _filename←''

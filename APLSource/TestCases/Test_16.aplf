@@ -9,7 +9,7 @@
      ##.FilesAndDirs.DeleteFile list
  :EndIf
 
- myLogger←⎕NEW ##.Logger(path'ascii' 'DATE' 1(2100 11 6 23 59 55)##)
+ myLogger←⎕NEW ##.Logger(path'ascii' 'DATE' 1(2100 11 6 23 59 55))
  →T.FailsIf 0≠myLogger.errorCounter
  myLogger.printToSession←1
 

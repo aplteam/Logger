@@ -11,7 +11,7 @@
 
  timestamp←2100 11 6 23 59 55
  fts←' ',⍨##.APLTreeUtils.FormatDateTime timestamp    ⍝ Formatted timestamp
- myLogger←⎕NEW ##.Logger(path'ascii' 'DATE' 1 timestamp ##)
+ myLogger←⎕NEW ##.Logger(path'ascii' 'DATE' 1 timestamp)
  →T.FailsIf 0≠myLogger.errorCounter
  myLogger.printToSession←1
  myLogger.errorPrefix←'###'
