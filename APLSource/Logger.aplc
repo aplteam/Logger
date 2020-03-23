@@ -39,14 +39,13 @@
 
     ∇ r←Version
       :Access Public shared
-      r←(Last⍕⎕THIS)'3.0.0.12' '2020-03-03'
+      r←(Last⍕⎕THIS)'4.0.0.13' '2020-03-23'
     ∇
 
     ∇ History
       :Access Public shared
-      ⍝ * 3.0.0
-      ⍝   * `refToUtils` removed. Dependencies are now expected to be siblings of `Logger`.
-      ⍝   * ANSI Encoding stumbled over the `^` character and added an unnessecary warning to the log
+      ⍝ * 4.0.0
+      ⍝   * BREAKING CHANGE: File extension is now .aplc rather than .dyalog
       ⍝ For information regarding older versions see <https://github.com/aplteam/Logger/releases>
     ∇
 
