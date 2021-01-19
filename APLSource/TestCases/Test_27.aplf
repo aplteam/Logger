@@ -1,0 +1,14 @@
+ R←Test_27(stopFlag batchFlag);⎕TRAP;path;list;myLogger
+⍝ Pass 4 parameters to the constructor (not done by any other test case)
+ R←T._Failed
+ ⎕TRAP←(999 'C' '. ⍝ Deliberate error')(0 'N')
+
+ path←GetFileRoot,'LogFiles'
+ :If FilesAndDirs.IsDir path
+     list←⊃FilesAndDirs.Dir path,'/*.log'
+     FilesAndDirs.DeleteFile list
+ :EndIf
+
+ myLogger←⎕NEW ##.Logger(path'UTF8' 'YEAR' 0)
+
+ R←T._OK

@@ -1,12 +1,12 @@
- R←Test_08(stopFlag batchFlag);path;list;parmSpace;msg;myLogger;buffer;⎕TRAP
+ R←Test_08(stopFlag batchFlag);path;list;parmSpace;msg;myLogger;buffer;⎕TRAP;qdmx
 ⍝ Tests all flavors of "filenameType" together with autoReopen ##.Logger
  R←T._Failed
  ⎕TRAP←(999 'C' '. ⍝ Deliberate error')(0 'N')
 
  path←GetFileRoot,'LogFiles'
- :If ##.FilesAndDirs.IsDir path
-     list←↑##.FilesAndDirs.Dir path,'/*.*'
-     ##.FilesAndDirs.DeleteFile list
+ :If FilesAndDirs.IsDir path
+     list←⊃FilesAndDirs.Dir path,'/*.*'
+     FilesAndDirs.DeleteFile list
  :EndIf
 
  parmSpace←##.Logger.CreatePropertySpace
@@ -27,9 +27,9 @@
  →T.FailsIf 0≠myLogger.errorCounter
 
  myLogger.Close
- list←↑##.FilesAndDirs.Dir path,'/*.log'
+ list←⊃FilesAndDirs.Dir path,'/*.log'
  →T.FailsIf 1≠⍴list   ⍝ AutoReopen was 0?!
- ##.FilesAndDirs.DeleteFile list
+ FilesAndDirs.DeleteFile list
 
  parmSpace←##.Logger.CreatePropertySpace
  parmSpace.autoReOpen←1
@@ -49,9 +49,9 @@
  →T.FailsIf 0≠myLogger.errorCounter
 
  myLogger.Close
- list←↑##.FilesAndDirs.Dir path,'/*.log'
+ list←⊃FilesAndDirs.Dir path,'/*.log'
  →T.FailsIf 2≠⍴list  ⍝ must have been re-opened once
- ##.FilesAndDirs.DeleteFile list
+ FilesAndDirs.DeleteFile list
 
  parmSpace←##.Logger.CreatePropertySpace
  parmSpace.autoReOpen←1
@@ -71,9 +71,9 @@
  →T.FailsIf 0≠myLogger.errorCounter
 
  myLogger.Close
- list←↑##.FilesAndDirs.Dir path,'/*.log'
+ list←⊃FilesAndDirs.Dir path,'/*.log'
  →T.FailsIf 2≠⍴list   ⍝ Must have been re-opened once
- ##.FilesAndDirs.DeleteFile list
+ FilesAndDirs.DeleteFile list
 
  parmSpace←##.Logger.CreatePropertySpace
  parmSpace.autoReOpen←1
@@ -93,9 +93,9 @@
  →T.FailsIf 0≠myLogger.errorCounter
 
  myLogger.Close
- list←↑##.FilesAndDirs.Dir path,'/*.log'
+ list←⊃FilesAndDirs.Dir path,'/*.log'
  →T.FailsIf 2≠⍴list   ⍝ Must have been re-opened once
- ##.FilesAndDirs.DeleteFile list
+ FilesAndDirs.DeleteFile list
 
  parmSpace←##.Logger.CreatePropertySpace
  parmSpace.autoReOpen←1
@@ -106,15 +106,16 @@
      myLogger←⎕NEW ##.Logger(,⊂parmSpace)
      →T.FailsIf 1
  :Else
-     :If '⍎Invalid filenameType'≢0⊃⎕DM
+     qdmx←⎕DMX
+     :If 'Invalid filenameType'≢qdmx.EM
          →T.FailsIf 1
      :EndIf
  :EndTrap
 
  myLogger.Close
- :If ##.FilesAndDirs.IsDir path
-     list←↑(##.FilesAndDirs.Dir path,'/*.*')~,¨'.' '..'
-     ##.FilesAndDirs.DeleteFile list
+ :If FilesAndDirs.IsDir path
+     list←↑(FilesAndDirs.Dir path,'/*.*')~,¨'.' '..'
+     FilesAndDirs.DeleteFile list
  :EndIf
 
  R←T._OK

@@ -1,0 +1,17 @@
+ R←Test_30(stopFlag batchFlag);⎕TRAP;version;date;myLogger;parms;delay
+⍝ Exercise all sorts of parameters that have in impact on `Open`
+ R←T._Failed
+ ⎕TRAP←(999 'C' '. ⍝ Deliberate error')(0 'N')
+
+ delay←0.1
+ parms←##.Logger.CreateParms
+ myLogger←⎕NEW ##.Logger(,⊂parms)
+ ⎕DL delay
+ parms.filenameType←'MONTH'
+ myLogger←⎕NEW ##.Logger(,⊂parms)
+ ⎕DL delay
+ parms.filenameType←'YEAR'
+ myLogger←⎕NEW ##.Logger(,⊂parms)
+ ⎕DL delay
+
+ R←T._OK

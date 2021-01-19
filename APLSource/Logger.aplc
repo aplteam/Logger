@@ -10,8 +10,11 @@
 ⍝
 ⍝ ## Syntax
 ⍝ ~~~
-⍝ ⎕NEW Logger ([path encoding filenameType debug timestamp])
-⍝ ⎕NEW Logger
+⍝ ⎕NEW Logger ([path_ encoding_ filenameType_ debug_ timestamp_])
+⍝ ⎕NEW Logger ([path_ encoding_ filenameType_ debug_])
+⍝ ⎕NEW Logger ([path_ encoding_ filenameType_])
+⍝ ⎕NEW Logger ([path_ encoding_])
+⍝ ⎕NEW Logger ([path_])
 ⍝ ⎕NEW Logger (,⊂ParameterSpace)
 ⍝ ⎕NEW Logger
 ⍝ ~~~
@@ -22,30 +25,35 @@
 ⍝ myParms.filenamePrefix←'MYAPP'
 ⍝ ⍝ ....
 ⍝ ⍝ Note that the namespace returned by `CreateParms` offers a method
-⍝ `List` which list both, the names and their current values.
+⍝ `∆List` which lists both the names and their current values.
 ⍝ ⎕NEW Logger (,⊂myParms)
 ⍝ ~~~
 ⍝
 ⍝ ## Misc
-⍝ Needs: At least Dyalog Version 12, Unicode or Classic\\
+⍝ Needs: At least Dyalog Version 18.\\
 ⍝ Author: Kai Jaeger ⋄ APL Team Ltd\\
-⍝ Homepage: <http://aplwiki.com/Logger>
-
-    :Include APLTreeUtils
+⍝ Homepage: <https://github.com/aplteam/Logger>
 
     ⎕IO←1
-    ⎕ML←3
+    ⎕ML←1
     CrLf←⎕UCS 13 10
 
     ∇ r←Version
       :Access Public shared
-      r←(Last⍕⎕THIS)'4.0.0.13' '2020-03-23'
+      r←'Logger' '5.0.0.18' '2021-01-19'
     ∇
 
     ∇ History
       :Access Public shared
-      ⍝ * 4.0.0
-      ⍝   * BREAKING CHANGE: File extension is now .aplc rather than .dyalog
+      ⍝ * 5.0.0
+      ⍝   * BREAKING CHANGES:
+      ⍝     * Requieres at least Dyalog 18.0
+      ⍝     * Requieres the class `APLTreeUtils2`
+      ⍝     * Now delivered as a Tatin package
+      ⍝   * Documentation improved
+      ⍝   * Internal changes:
+      ⍝     * Does not `:Include APLTreeUtils` anymore
+      ⍝     * Uses `⎕ML←1`\\
       ⍝ For information regarding older versions see <https://github.com/aplteam/Logger/releases>
     ∇
 
@@ -55,8 +63,8 @@
 
     :Property encoding
     ⍝ In a Unicode interpreter, this can be either "ANSI" or "UTF8".\\
-    ⍝ "ASCII" is deprecated since version 2.1 but still allowed and internally
-    ⍝ switched to "ANSI".
+    ⍝ "ASCII" is deprecated since version 2.1 but still allowed though internally switched to "ANSI" which is the default
+    ⍝ This property is read-only since it can only be specified with `⎕NEW`.\\
     :Access Public
         ∇ r←get
           r←_encoding
@@ -74,7 +82,7 @@
           r←_autoReOpen
         ∇
         ∇ set arg
-          'Must be a Boolean'⎕SIGNAL 11/⍨~arg.NewValue∊0 1
+          'Must be a Boolean: "debug"'⎕SIGNAL 11/⍨~arg.NewValue∊0 1
           _autoReOpen←arg.NewValue
         ∇
     :EndProperty
@@ -87,7 +95,7 @@
           r←_filenameType
         ∇
         ∇ set arg;buffer
-          buffer←Uppercase arg.NewValue
+          buffer←1 ⎕C arg.NewValue
           'Invalid filenameType'⎕SIGNAL 11/⍨~(⊂buffer)∊'DATE' 'YEAR' 'MONTH' ''
           _filenameType←arg.NewValue
         ∇
@@ -128,8 +136,8 @@
           r←_extension
         ∇
         ∇ set arg
-          'Must be simple'⎕SIGNAL 11/⍨~0 1∊⍨≡arg.NewValue
-          'Must be a string'⎕SIGNAL 11/⍨~IsChar arg.NewValue
+          'Must be simple'⎕SIGNAL 11/⍨~0 1∊⍨|≡arg.NewValue
+          'Must be a string'⎕SIGNAL 11/⍨~A.IsChar arg.NewValue
           _extension←arg.NewValue
         ∇
     :EndProperty
@@ -152,11 +160,10 @@
     :EndProperty
 
     :Property active
-    ⍝ Use this to switch logging effectively on and off. If it is zero, there is not even
-    ⍝ a log file opened. If later `active` is set to 1, the log file will be opened by then.\\
-    ⍝ If an instance is created with `active←1` and is set later to 0 the then opened
-    ⍝ logfile will not be closed, however. In this case any operations are
-    ⍝ suppressed, but the log file will remain open.\\
+    ⍝ Use this to switch logging effectively on and off. If this is zero the log file is not even opened.
+    ⍝ If later `active` is set to 1, the log file will be opened by then.\\
+    ⍝ If an instance is created with `active←1` and is set later to 0 the then opened logfile will not be
+    ⍝ closed, however. In this case any operations are suppressed, but the log file will remain open.\\
     ⍝ See also `fileFlag`.
     :Access Public Instance
         ∇ r←get
@@ -183,7 +190,7 @@
     ⍝ log file opened. If `fileFlag` is set later to 1 (and `active` is 1 by then), the
     ⍝ log file will be opened then.\\
     ⍝ If an instance is created with `fileFlag←1` and it is set later to 0 the then
-    ⍝ opened logfile will not be closed, however. In this case any file operations are
+    ⍝ opened logfile will not be closed, however. Any file operations are
     ⍝ suppressed but the log file will remain open.\\
     ⍝ See also `active`.
     :Access Public
@@ -215,7 +222,7 @@
           r←_filenamePrefix
         ∇
         ∇ set arg
-          '"filenamePrefix" must be a string'⎕SIGNAL 11/⍨~IsChar arg.NewValue
+          '"filenamePrefix" must be a string'⎕SIGNAL 11/⍨~A.IsChar arg.NewValue
           _filenamePrefix←arg.NewValue
         ∇
     :EndProperty
@@ -232,7 +239,7 @@
           r←_filenamePostfix
         ∇
         ∇ set arg
-          '"filenamePostfix" must be a string'⎕SIGNAL 11/⍨~IsChar arg.NewValue
+          '"filenamePostfix" must be a string'⎕SIGNAL 11/⍨~A.IsChar arg.NewValue
           _filenamePostfix←arg.NewValue
         ∇
     :EndProperty
@@ -247,7 +254,7 @@
           r←_errorPrefix
         ∇
         ∇ set arg
-          '"errorPrefix" must be a string'⎕SIGNAL 11/⍨~IsChar arg.NewValue
+          '"errorPrefix" must be a string'⎕SIGNAL 11/⍨~A.IsChar arg.NewValue
           _errorPrefix←arg.NewValue
         ∇
     :EndProperty
@@ -292,9 +299,10 @@
 ⍝ --------------- Constructors
 
     ∇ make0;constructorIsRunning;msg
-    ⍝ Defaults, defaults, defaults
+    ⍝ Intilaized with just the defaults.
       :Access Public Instance
       :Implements Constructor
+      Init ⍬
       constructorIsRunning←1
       InitialyzeProperties
       (_errorCounter msg)←Create ⍬
@@ -303,24 +311,26 @@
     ∇
 
     ∇ make1(pathOrParameterSpace);bool;list;this;constructorIsRunning;msg
-    ⍝ `pathOrParameterSpace` can be either a path or a command space:
+    ⍝ `pathOrParameterSpace` can be either a path to a folder where the log file
+    ⍝ will live, or a command space:
     ⍝ | path          | Directory the log file is going to.
     ⍝ | Command space | Useful to set all possible parameters.
     ⍝ Note that you can ask
-    ⍝ `Logger` to create a command space for you, see method `CreateParms`.
-    ⍝ Then simply set those where the defaults do not fit your needs.
+    ⍝ `Logger` to create a command space for you, see the method `CreateParms`.
+    ⍝ Then simply set those where the defaults do not fit your needs and provide the namespace as argument to `⎕NEW`.
       :Access Public Instance
       :Implements Constructor
+      Init ⍬
       constructorIsRunning←1
       InitialyzeProperties
-      :If 9.1=⎕NC⊂,'pathOrParameterSpace'
+      :If 9.1=⎕NC⊂'pathOrParameterSpace'
       :AndIf 0=≡pathOrParameterSpace
  ⍝ It is a command space
-          :If ∨/bool←2≠⎕NC⊃'_',¨list←pathOrParameterSpace.⎕NL-2
-              11 ⎕SIGNAL⍨'Invalid keyword(s): ',↑{⍺,',',⍵}/bool/list
+          :If ∨/bool←2≠⎕NC↑'_',¨list←pathOrParameterSpace.⎕NL-2
+              11 ⎕SIGNAL⍨'Invalid keyword(s): ',⊃{⍺,',',⍵}/bool/list
           :EndIf
           'Missing: "active"'⎕SIGNAL 1/⍨~(⊂'active')∊list
-          :For this :In {⍵,'←',{' '=1↑0⍴⍵:'''',⍵,'''' ⋄ ⍵≡⍬:'⍬' ⋄ ⍕⍵}pathOrParameterSpace.⍎⍵}¨list~'filename' 'path' 'encoding' 
+          :For this :In {⍵,'←',{' '=1↑0⍴⍵:'''',⍵,'''' ⋄ ⍵≡⍬:'⍬' ⋄ ⍕⍵}pathOrParameterSpace.⍎⍵}¨list~'filename' 'path' 'encoding'
               ⍎this ⍝ not eached for easier debugging
           :EndFor
           :If (⊂'filename')∊list
@@ -348,14 +358,16 @@
     ∇
 
     ∇ make2(path_ encoding_);constructorIsRunning;msg
-    ⍝ `encoding` is a flag defining the encoding. 0 (the default) is ANSI, 1=UTF-8.
+    ⍝ `encoding` is a character vector defining the encoding. You may specify `ANSI` (the default) and `UTF8` or `UTF-8`.\\
+    ⍝ Notes:
+    ⍝ * `ASCII` is not rejected but changed to `ANSI`
+    ⍝ * `UTF-8` is accepted but internally changed to `UTF8`
       :Access Public Instance
       :Implements Constructor
+      Init ⍬
       constructorIsRunning←1
       InitialyzeProperties
-      :If 0=≢_encoding←ProcessEncoding encoding_
-          'Invalid: "encoding"'⎕SIGNAL 11
-      :EndIf
+      _encoding←ProcessEncoding encoding_
       _path←ProcessPath path_
       (_errorCounter msg)←Create ⍬
       SetDisplayFormat
@@ -368,6 +380,7 @@
     ⍝ Can be "MONTH" or "YEAR" instead.
       :Access Public Instance
       :Implements Constructor
+      Init ⍬
       constructorIsRunning←1
       InitialyzeProperties
       _path←ProcessPath path_
@@ -382,6 +395,7 @@
     ⍝ `debug` (default: 0) is a Boolean useful to switch error trapping off
       :Access Public Instance
       :Implements Constructor
+      Init ⍬
       constructorIsRunning←1
       InitialyzeProperties
       _path←ProcessPath path_
@@ -400,6 +414,7 @@
     ⍝ re-open feature of the `Logging` class, you can specify a particular timestamp.
       :Access Public Instance
       :Implements Constructor
+      Init ⍬
       constructorIsRunning←1
       InitialyzeProperties
       _path←ProcessPath path_
@@ -439,7 +454,6 @@
     ⍝ Is called by the "official" constructors but is private, strictly speaking.
       r←0
       msg←''
-      F←⍎(⍕FindPathTo 'FilesAndDirs'),'.FilesAndDirs'
       :If 0≠≢_filename
       :AndIf _autoReOpen
           r←1
@@ -448,6 +462,12 @@
       :EndIf
       (r msg)←Open ⍬
     ⍝Done
+    ∇
+
+    ∇ {r}←Init dummy
+      r←⍬
+      A←(⊃⊃⎕CLASS ⎕THIS).##.APLTreeUtils2
+      F←(⊃⊃⎕CLASS ⎕THIS).##.FilesAndDirs
     ∇
 
 ⍝ --------------- Public Shared Methods
@@ -496,17 +516,17 @@
     ⍝ * A vector
     ⍝ * A matrix
     ⍝ * A vector of vectors
-      ⎕TRAP←(999 'E' '({⍵↑⍨1⍳⍨''rc=''{⍺⍷⍵}⍵}⎕IO⊃⎕DM)⎕SIGNAL {⍎⍵↑⍨-''=''⍳⍨⌽⍵}⎕IO⊃⎕DM')((0 1000)'N')
+      ⎕TRAP←(999 'E' '({⍵↑⍨1⍳⍨''rc=''{⍺⍷⍵}⍵}⎕DMX.EM)⎕SIGNAL {⍎⍵↑⍨-''=''⍳⍨⌽⍵}⎕DMX.EM')((0 1000)'N')
       r←''
       :If _active
           :Trap SetTrap 0
               thisTimestamp←Timestamp 1
-              msg←Nest{2=⍴⍴⍵:⊂[2]⍵ ⋄ ⍵}msg
+              msg←,⊆{2=⍴⍴⍵:⊂[2]⍵ ⋄ ⍵}msg
               msg←HandleEncoding msg
               :If _fileFlag
                   r←WriteToLogfile msg thisTimestamp
               :Else
-                  ⎕←⊃PolishMsg msg
+                  ⎕←↑PolishMsg msg
               :EndIf
           :Else
               _errorCounter+←1
@@ -522,7 +542,7 @@
      ⍝ | more (optional)  | Any array that has a depth of 2 or less and a rank of 2 or less.
      ⍝ Returns an empty vector in case rc←0 otherwise what was printed to the log file.
       r←''
-      ⎕TRAP←(999 'E' '({⍵↑⍨1⍳⍨''rc=''{⍺⍷⍵}⍵}⎕IO⊃⎕DM)⎕SIGNAL {⍎⍵↑⍨-''=''⍳⍨⌽⍵}⎕IO⊃⎕DM')((0 1000)'N')
+      ⎕TRAP←(999 'E' '({⍵↑⍨1⍳⍨''rc=''{⍺⍷⍵}⍵}⎕DMX.EM)⎕SIGNAL {⍎⍵↑⍨-''=''⍳⍨⌽⍵}⎕DMX.EM')((0 1000)'N')
       :If ~2 3∊⍨⍴,y
           :If _debug
               'Length error - right argument'⎕SIGNAL 6
@@ -531,15 +551,20 @@
           :EndIf
       :EndIf
       (rc msg more)←3↑y,(⍴,y)↓0 '' ''
-      msg←{2=⍴⍴⍵:↓⍵ ⋄ ,Nest ⍵}msg
-      msg←HandleEncoding msg
-      more←⍕¨⊃,/{2=⍴⍴⍵:↓⍵ ⋄ ⊂,⍵}¨Nest⊃,/{2=⍴⍴⍵:↓⍵ ⋄ ⊂,⍵}more
-      :If 2<≡more
+      msg←{2=⍴⍴⍵:↓⍵ ⋄ ,⊆⍵}msg
+      more←⍕¨⊃,/{2=⍴⍴⍵:↓⍵ ⋄ ⊂,⍵}¨⊆⊃,/{2=⍴⍴⍵:↓⍵ ⋄ ⊂,⍵}more
+      :If 2=|≡msg
+          more←⊃,/{⍕¨{2=⍴⍴⍵:↓⍵ ⋄ ,⊆,⍵}⍵}¨more
+      :Else
+          more←⍕¨{2=⍴⍴⍵:↓⍵ ⋄ ,⊆,⍵}more
+      :EndIf
+      :If 2<|≡more
           more←∊¨more
       :EndIf
-      more←HandleEncoding more
       :If _active∧0≠rc
           msg←MassageErrorMessage msg
+          msg←HandleEncoding msg
+          more←HandleEncoding more
           (msg more)←ApplyMakeUp rc msg more
           →(0=≢msg,more)/0
           :Trap 0
@@ -548,7 +573,7 @@
                   r←WriteToLogfile msg timestamp
                   r,←WriteToLogfile more timestamp
               :Else
-                  ⎕←⊃PolishMsg msg
+                  ⎕←↑PolishMsg msg
               :EndIf
           :EndTrap
       :EndIf
@@ -556,7 +581,7 @@
 
 ⍝ --------------- Private stuff
 
-    ∇ (rc more filename)←MakeNewFilename filename
+    ∇ (rc more filename)←MakeNewFilename filename;qdmx
     ⍝ Compiles a new filename and takes any changes in the timestamp into account.\\
     ⍝ As a result, the compiled filename might differ from the one used so far.
     ⍝ In that case, obviously the log file needs to be re-opened when `autoReOpen ←→ 1`.
@@ -571,18 +596,16 @@
           filename←_filenamePrefix{0=≢⍺:⍵ ⋄ ⍺,'_',⍵}filename
           'No log filename specified and autoReOpen is 0'⎕SIGNAL 11/⍨0=≢filename
       :Else
-          :If _debug
-              . ⍝ something is wrong here
-          :Else
-              rc←1
-              more←⎕DM
-          :EndIf
+          'Something is wrong here!'⎕SIGNAL _debug/11
+          rc←1
+          qdmx←⎕DMX
+          more←qdmx.EM
       :EndTrap
     ∇
 
     ∇ r←SetTrap events;Flag
- ⍝ R gets 1 if error trapping is appropriate according to the _
- ⍝ global _debug variable
+     ⍝ R gets 1 if error trapping is appropriate according to the _
+     ⍝ global _debug variable
       :Trap 0
           r←(~_debug)/events
       :Else
@@ -591,8 +614,8 @@
     ∇
 
     ∇ r←Timestamp decoratorFlag;ts
-⍝ 1=decoratorFlag ←→ yyyy-mm-dd hh:mm:ss
-⍝ 0=decoratorFlag ←→ yyyymmddhhmmss
+    ⍝ 1=decoratorFlag ←→ yyyy-mm-dd hh:mm:ss
+    ⍝ 0=decoratorFlag ←→ yyyymmddhhmmss
       :If 0≠≢_timestamp
       :AndIf _debug
           ts←6↑_timestamp
@@ -608,36 +631,30 @@
       :EndIf
     ∇
 
-    ∇ {(r msg)}←Open newFilename;rc;hint;fno;⎕RL
+    ∇ {(r msg)}←Open newFilename;rc;hint;fno;⎕RL;qdmx
     ⍝ Open the log file. Any directory requested but non-existent is created here as well.
       r←0
       msg←''
       :If _active∧_fileFlag
           :Trap SetTrap 0
-              _filenameType←Uppercase _filenameType
+              _filenameType←1 ⎕C _filenameType
               :If 0=≢newFilename
                   (rc hint newFilename)←MakeNewFilename''
                   :If 0≠rc
                       msg←'Could not create new filename from "filenameType" and "path"'
-                      :If _debug
-                          msg ⎕SIGNAL 11
-                      :Else
-                          →0,r←1
-                      :EndIf
+                      msg ⎕SIGNAL _debug/11
+                      →0,r←1
                   :EndIf
               :EndIf
-              :If '.'≠↑¯4↑newFilename
+              :If '.'≠⊃¯4↑newFilename
                   newFilename,←'.',_extension
               :EndIf
               _filename←newFilename
               :If 0≠≢_path
                   :If ~'CREATE!'F.CheckPath _path
                       msg←'Could not open the log file, check the path'
-                      :If _debug
-                          msg ⎕SIGNAL 11
-                      :Else
-                          →0,r←1
-                      :EndIf
+                      msg ⎕SIGNAL _debug/11
+                      →0,r←1
                   :EndIf
               :EndIf
               ⎕RL←+/⎕TS
@@ -648,23 +665,20 @@
                   :Trap SetTrap 0
                       _fileDescriptor←FullFilename ⎕NTIE fno ⍝ 66 ⍝ grant all to all!
                   :Else
-                      msg←'Error during open of logfiles: ',1⊃⎕DM
-                      :If _debug
-                          msg ⎕SIGNAL ⎕EN
-                      :Else
-                          →0,r←1
-                      :EndIf
+                      qdmx←⎕DMX
+                      msg←'Error during open of logfiles: ',qdmx.EM
+                      msg ⎕SIGNAL _debug/qdmx.EN
+                      →0,r←1
                   :EndTrap
               :Else
                   ⎕SIGNAL 11
               :EndTrap
               ((Timestamp 1),' ','*** Log File opened',CrLf)⎕NAPPEND _fileDescriptor 80
           :Else
-              r←1
               msg←'Error during open of logfiles'
-              :If _debug
-                  msg ⎕SIGNAL ⎕EN
-              :EndIf
+              qdmx←⎕DMX
+              msg ⎕SIGNAL _debug/qdmx.EN
+              r←1
           :EndTrap
       :EndIf
     ∇
@@ -677,11 +691,8 @@
       :If r←0≠≢,_autoReOpen
           (rc hint newFilename)←MakeNewFilename _filename
           :If 0≠rc
-              :If _debug
-                  hint ⎕SIGNAL rc
-              :Else
-                  →0,r←¯1
-              :EndIf
+              hint ⎕SIGNAL _debug/rc
+              →0,r←¯1
           :EndIf
           :If (0=≢,newFilename)∨~_autoReOpen
               r←0
@@ -695,7 +706,7 @@
               :Case 'YEAR'
                   r←string[1 2 3 4]≢((⍴_filenamePrefix)↓newFilename)[1 2 3 4]
               :Case ''
-                  r←newFilename≢1⊃'.'Split _filename
+                  r←newFilename≢1⊃'.'A.Split _filename
               :EndSelect
           :EndIf
       :EndIf
@@ -720,20 +731,6 @@
 
 ⍝ --------------- Private stuff
 
-    ∇ r←QavPoints
-    ⍝ Returns the Unicode points of all chars in the standard ⎕AV:  ⎕UCS ⎕AV
-    ⍝ Used to tell in the classic version "real" Unicode chars from any chars in ⎕AV
-      r←0 8 10 13 32 12 6 7 27 9 9014 619 37 39 9082 9077 95 97 98 99 100 101 102 103 104 105 106 107 108 109 110 111 112 113
-      r,←114 115 116 117 118 119 120 121 122 1 2 175 46 9068 48 49 50 51 52 53 54 55 56 57 3 164 165 36 163 162 8710 65 66 67
-      r,←68 69 70 71 72 73 74 75 76 77 78 79 80 81 82 83 84 85 86 87 88 89 90 4 5 253 183 127 9049 193 194 195 199 200 202 203
-      r,←204 205 206 207 208 210 211 212 213 217 218 219 221 254 227 236 240 242 245 123 8364 125 8867 9015 168 192 196 197
-      r,←198 9064 201 209 214 216 220 223 224 225 226 228 229 230 231 232 233 234 235 237 238 239 241 91 47 9023 92 9024 60 8804
-      r,←61 8805 62 8800 8744 8743 45 43 247 215 63 8714 9076 126 8593 8595 9075 9675 42 8968 8970 8711 8728 40 8834 8835 8745
-      r,←8746 8869 8868 124 59 44 9073 9074 9042 9035 9033 9021 8854 9055 9017 33 9045 9038 9067 9066 8801 8802 243 244 246 248
-      r,←34 35 30 38 8217 9496 9488 9484 9492 9532 9472 9500 9508 9524 9516 9474 64 249 250 251 94 252 8216 8739 182 58 9079 191
-      r,←161 8900 8592 8594 9053 41 93 31 160 167 9109 9054 9059
-    ∇
-
       ProcessPath←{
           0=≢⍵:''
           ⍵,(~'\/'∊⍨¯1↑⍵)/'/'  ⍝ append / if appropriate
@@ -741,9 +738,9 @@
 
       ProcessEncoding←{
           0=1↑0⍴∊⍵:'ANSI'
-          W←Uppercase ⍵
-          ~(⊂W)∊'UTF8' 'ANSI' 'ASCII':''
-          ('UTF8' 'ANSI' 'ASCII'⍳⊂W)⊃'UTF8' 'ANSI' 'ANSI'
+          W←1 ⎕C ⍵
+          ~(⊂W)∊'UTF8' 'UTF-8' 'ANSI' 'ASCII':'Invalid: "encoding"'⎕SIGNAL 11
+          ('UTF8' 'UTF-8' 'ANSI' 'ASCII'⍳⊂W)⊃'UTF8' 'UTF8' 'ANSI' 'ANSI'
       }
 
       PolishMsg←{
@@ -751,14 +748,14 @@
       ⍝ Makes sure that ⎕PW is taken into account
       ⍝ ⍵ is a vector of strings
           max←⎕PW-3
-          ∧/~bool←max<↑∘⍴¨r←⍵:r
+          ∧/~bool←max<≢¨r←⍵:r
           (bool/r)←max{'..',⍨⍺↑⍵}¨bool/r
           r
       }
 
     ∇ txt←HandleEncoding txt;nestedFlag;ansi
-      nestedFlag←0 1∧.<≡txt
-      txt←Nest txt
+      nestedFlag←0 1∧.<|≡txt
+      txt←,⊆txt
       :If _encoding≡'UTF8'
           txt←⎕UCS¨'UTF-8'∘⎕UCS¨txt
       :Else
@@ -769,7 +766,7 @@
               txt←{~(⎕DR ⍵)∊80 160:⍕⍵ ⋄ 0=+/bool←128<⎕UCS w←⍵:⍵ ⋄ (bool/w)←'¿' ⋄ w}¨,¨txt  ⍝ replace non-ansi chars by "¿"
           :EndIf
       :EndIf
-      txt←∊⍣(↑~nestedFlag)⊣txt
+      txt←∊⍣(⊃~nestedFlag)⊣txt
     ∇
 
     ∇ {r}←WriteToLogfile(msg thisTimestamp);rc;newFilename;buffer;flag;⎕TRAP
@@ -786,11 +783,8 @@
       (rc newFilename)←CheckForReopen ⍝ Check re-open condition
       :Select rc
       :Case ¯1
-          :If _debug
-              'Re-Open check failed rc=11'⎕SIGNAL 999
-          :Else
-              →0,_errorCounter+←1
-          :EndIf
+          'Re-Open check failed rc=11'⎕SIGNAL _debug/999
+          →0,_errorCounter+←1
       :Case 1
           buffer←thisTimestamp,' (',(⍕⎕TID),') *** Log File is going to be closed and then reopened with a new filename',CrLf
           buffer ⎕NAPPEND _fileDescriptor 80
@@ -816,33 +810,28 @@
       :EndTrap
       :If _printToSession
           :If flag
-              ⎕←⊃PolishMsg buffer
+              ⎕←↑PolishMsg buffer
           :Else
-              ⎕←⊃PolishMsg ¯2↓¨msg
+              ⎕←↑PolishMsg ¯2↓¨msg
           :EndIf
       :EndIf
     ∇
 
     ∇ msg←MassageErrorMessage msg
       msg←{2=⍴⍴⍵:↓⍵ ⋄ ⍵}msg
-      :If ~0 1∊⍨≡msg
-          :If 2≠≡msg
-              :If _debug
-                  'Invalid "msg"'⎕SIGNAL 11
-              :Else
-                  _errorCounter+←1
-                  :Return
-              :EndIf
-          :EndIf
+      :If ~(≡msg)∊0 1
+      :AndIf 2≠|≡msg
+          'Invalid "msg"'⎕SIGNAL _debug/11
+          _errorCounter+←1
       :EndIf
     ∇
 
     ∇ (msg2 more2)←ApplyMakeUp(rc msg more);prefix
       msg2←more2←''
       :Trap 0
-          :If 2=≡msg
+          :If 2=|≡msg
               prefix←_errorPrefix,' RC=',(⍕rc),'; '
-              (↑msg)←prefix,↑msg
+              (⊃msg)←prefix,⊃msg
               :If 1<⍴msg
                   (1↓msg)←(⍴prefix)∘AddTrailingBlanks¨1↓msg
               :EndIf
@@ -850,11 +839,7 @@
               msg←_errorPrefix,' RC=',(⍕rc),'; ',msg
           :EndIf
       :Else
-          :If _debug
-              →0,⍴r'Invalid "msg"' 11
-          :Else
-              →0,_errorCounter+←1
-          :EndIf
+          →0,_errorCounter+←1
       :EndTrap
       :Trap 0
           :If 0=≢∊more
@@ -863,18 +848,14 @@
               more←(1+⍴,_errorPrefix)∘AddTrailingBlanks¨more
           :EndIf
       :Else
-          :If _debug
-              →0,r←'Invalid "more"' 11
-          :Else
-              →0,_errorCounter+←1
-          :EndIf
+          →0,_errorCounter+←1
       :EndTrap
       (msg2 more2)←msg more
     ∇
 
       AddTrailingBlanks←{
           0=≢⍵:⍵
-          0 1∊⍨≡⍵:(⍺⍴' '),,⎕FMT ⍵
+          0 1∊⍨|≡⍵:(⍺⍴' '),,⎕FMT ⍵
           2=⍴⍴⍵:↓⍵
           ⍺{(((1⊃⍴⍵),⍺-1)⍴' '),⍵}⎕FMT,[1.5]⍵
       }

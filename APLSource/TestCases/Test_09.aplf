@@ -1,13 +1,13 @@
- R←Test_09(stopFlag batchFlag);path;isUnicode;list;parmSpace;msg;myLogger;buffer;⎕TRAP
+ R←Test_09(stopFlag batchFlag);path;isUnicode;list;parmSpace;msg;myLogger;buffer;⎕TRAP;qdmx
 ⍝ Different combinations of filename, filenamePrefix, filenamePostfix and filenameType.
  R←T._Failed
  ⎕TRAP←(999 'C' '. ⍝ Deliberate error')(0 'N')
 
  path←GetFileRoot,'LogFiles'
  isUnicode←80=⎕DR' '
- :If ##.FilesAndDirs.IsDir path
-     list←↑##.FilesAndDirs.Dir path,'/*.log'
-     ##.FilesAndDirs.DeleteFile list
+ :If FilesAndDirs.IsDir path
+     list←⊃FilesAndDirs.Dir path,'/*.log'
+     FilesAndDirs.DeleteFile list
  :EndIf
 
  parmSpace←##.Logger.CreatePropertySpace
@@ -27,14 +27,14 @@
 
  →T.FailsIf 0≠myLogger.errorCounter
 
- buffer←##.APLTreeUtils.ReadUtf8File myLogger.FullFilename
- →T.FailsIf 3≠⍴buffer
- →T.FailsIf(##.FilesAndDirs.NormalizePath GetFileRoot,'LogFiles\PREFIX__',(⍕100⊥⎕TS[0 1]),'__POSTFIX.log')≢myLogger.FullFilename
+ buffer←⊃FilesAndDirs.NGET myLogger.FullFilename 1
+ →T.FailsIf 2≠⍴buffer
+ →T.FailsIf(FilesAndDirs.NormalizePath GetFileRoot,'LogFiles\PREFIX__',(⍕100⊥⎕TS[1 2]),'__POSTFIX.log')≢myLogger.FullFilename
 
  myLogger.Close
 ⍝ We set pre and post but no filename AND type is empty!
- list←↑##.FilesAndDirs.Dir path,'/*.log'
- ##.FilesAndDirs.DeleteFile list
+ list←⊃FilesAndDirs.Dir path,'/*.log'
+ FilesAndDirs.DeleteFile list
 
  parmSpace←##.Logger.CreatePropertySpace
  parmSpace.debug←1
@@ -53,12 +53,12 @@
 
  →T.FailsIf 0≠myLogger.errorCounter
 
- buffer←##.APLTreeUtils.ReadUtf8File myLogger.FullFilename
- →T.FailsIf 3≠⍴buffer
- →T.FailsIf(##.FilesAndDirs.NormalizePath GetFileRoot,'LogFiles/PREFIX____POSTFIX.log')≢myLogger.FullFilename
+ buffer←⊃FilesAndDirs.NGET myLogger.FullFilename 1
+ →T.FailsIf 2≠⍴buffer
+ →T.FailsIf(FilesAndDirs.NormalizePath GetFileRoot,'LogFiles/PREFIX____POSTFIX.log')≢myLogger.FullFilename
 
- list←↑##.FilesAndDirs.Dir path,'/*.log'
- ##.FilesAndDirs.DeleteFile list
+ list←⊃FilesAndDirs.Dir path,'/*.log'
+ FilesAndDirs.DeleteFile list
 
 ⍝ We set type to empty and do not define filename, post, pre: INVALID!!
  myLogger.Close
@@ -73,14 +73,15 @@
      myLogger←⎕NEW ##.Logger(,⊂parmSpace)
      →T.FailsIf 1
  :Else
-     :If 'No "filenameType" specified but no "filename", "filenamePostfix", "filenamePrefix" either'≢0⊃⎕DM
+     qdmx←⎕DMX
+     :If 'No "filenameType" specified but no "filename", "filenamePostfix", "filenamePrefix" either'≢qdmx.EM
          →T.FailsIf 1
      :EndIf
  :EndTrap
 
 ⍝ to be on the save side:
  myLogger.Close
- list←↑##.FilesAndDirs.Dir path,'/*.log'
- ##.FilesAndDirs.DeleteFile list
+ list←⊃FilesAndDirs.Dir path,'/*.log'
+ FilesAndDirs.DeleteFile list
 
  R←T._OK

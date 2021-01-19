@@ -1,0 +1,13 @@
+ {r}←Initialize;⎕TRAP;parent;l
+ ⎕TRAP←0 'S'
+ r←⍬
+ {}⎕SE.UCMD'cd ',AcreConfig.ProjectFolder
+ parent←⍕⎕THIS
+ :If 0<≢l←⎕SE.Tatin.LoadDependencies'./packages/'parent
+     ⎕←'Loaded into ',parent,': ',⊃{⍺,',',⍵}/⍕¨l
+ :EndIf
+ parent,←'.TestCases'
+ :If 0<≢l←⎕SE.Tatin.LoadDependencies'./packages_dev/'parent
+     ⎕←'Loaded into ',parent,': ',⊃{⍺,',',⍵}/⍕¨l
+ :EndIf
+⍝Done

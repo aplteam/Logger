@@ -1,9 +1,9 @@
- R←Test_22(stopFlag batchFlag);myLogger1;myLogger2;i;p2;p1;A;⎕TRAP
+ R←Test_22(stopFlag batchFlag);myLogger1;myLogger2;i;p2;p1;A;⎕TRAP;delay
 ⍝ Opens two log files and then tries to do the same time & again (tie number conflicts, desctructors).
  ⎕TRAP←(999 'C' '. ⍝ Deliberate error')(0 'N')
  R←T._Failed
  i←1
- A←##.APLTreeUtils
+ A←APLTreeUtils2
 
  p1←##.Logger.CreatePropertySpace
  p1.filename←'MyLog_1'
@@ -15,22 +15,24 @@
  p2.path←GetFileRoot,'TestFiles\'
  p2.autoReOpen←0
 
+ delay←0.01
  :Repeat
+     ⎕DL delay
      myLogger1←⎕NEW ##.Logger(,⊂p1)
      myLogger1.Log'Works!'
 
-     →T.FailsIf myLogger1.fileDescriptor≠{(##.FilesAndDirs.NNAMES⍳⊂⍵)⊃⎕NNUMS}##.FilesAndDirs.NormalizePath GetFileRoot,'TestFiles/MyLog_1.log'
-
+     →T.FailsIf myLogger1.fileDescriptor≠{(FilesAndDirs.NNAMES⍳⊂⍵)⊃⎕NNUMS}FilesAndDirs.NormalizePath GetFileRoot,'TestFiles/MyLog_1.log'
+     ⎕DL delay
      myLogger2←⎕NEW ##.Logger(,⊂p2)
      myLogger2.Log'Works!'
 
-     →T.FailsIf myLogger2.fileDescriptor≠{(##.FilesAndDirs.NNAMES⍳⊂⍵)⊃⎕NNUMS}##.FilesAndDirs.NormalizePath GetFileRoot,'TestFiles/MyLog_2.log'
-
+     →T.FailsIf myLogger2.fileDescriptor≠{(FilesAndDirs.NNAMES⍳⊂⍵)⊃⎕NNUMS}FilesAndDirs.NormalizePath GetFileRoot,'TestFiles/MyLog_2.log'
+     ⎕DL delay
      myLogger1←⎕NEW ##.Logger(,⊂p1)
      myLogger1.Log'Works!'
 
-     →T.FailsIf myLogger1.fileDescriptor≠{(##.FilesAndDirs.NNAMES⍳⊂⍵)⊃⎕NNUMS}##.FilesAndDirs.NormalizePath GetFileRoot,'TestFiles/MyLog_1.log'
-
+     →T.FailsIf myLogger1.fileDescriptor≠{(FilesAndDirs.NNAMES⍳⊂⍵)⊃⎕NNUMS}FilesAndDirs.NormalizePath GetFileRoot,'TestFiles/MyLog_1.log'
+     ⎕DL delay
      myLogger2←⎕NEW ##.Logger(,⊂p2)
      myLogger2.Log'Works!'
 

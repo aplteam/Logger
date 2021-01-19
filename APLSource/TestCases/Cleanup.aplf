@@ -2,7 +2,7 @@
  ⎕FUNTIE ⎕FNUMS
  ⎕NUNTIE ⎕NNUMS
  path←¯1↓GetFileRoot
- (rc en more)←##.FilesAndDirs.RmDir path
+ (rc en more)←FilesAndDirs.RmDir path
  :If 0≠rc
  :AndIf (1≠rc)∨'not found or missing'{⍺≢(⍴⍺)↑⍵}more
      ⎕←'Could not remove this: ',path

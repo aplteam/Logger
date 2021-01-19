@@ -1,4 +1,4 @@
- R←Test_03(stopFlag batchFlag);path;myLogger;list;rc;more;msg;fileContents;parmSpace;shouldBe;unicodeChar;questionMark;⎕TRAP
+ R←Test_03(stopFlag batchFlag);path;myLogger;list;rc;more;msg;fileContents;parmSpace;shouldBe;unicodeChar;questionMark;⎕TRAP;qdmx
 ⍝ Creates ANSI file & writes ANSI records to it but also tries to add records with Unicode chars.
 ⍝ Proper APL chars might be a plus when it comes to error messages (⎕DM)
  R←T._Failed
@@ -10,9 +10,9 @@
    ⍝ otherwise use it's two-byte-representation:
  unicodeChar←⎕UCS 931
 
- :If ##.FilesAndDirs.IsDir path
-     list←↑##.FilesAndDirs.Dir path,'/*.log'
-     ##.FilesAndDirs.DeleteFile list
+ :If FilesAndDirs.IsDir path
+     list←⊃FilesAndDirs.Dir path,'/*.log'
+     FilesAndDirs.DeleteFile list
  :EndIf
 
  myLogger←⎕NEW ##.Logger(path'ansi' 'DATE' 1(2100 11 6 23 59 55))
@@ -26,28 +26,28 @@
 
  rc←1
  more←'"',unicodeChar,'"'
- msg←'Summary "',unicodeChar,'" of problems (this line contains a unicode char!'
+ msg←'Summary "',unicodeChar,'" of problems (this line contains a unicode char!)'
  myLogger.LogError(rc msg more)
 
  rc←1
  more←'"',unicodeChar,'"'
- msg←'123',¨⊂'Summary "',unicodeChar,'" of problems (this line also contains a unicode char!'
+ msg←'123',¨⊂'Summary "',unicodeChar,'" of problems (this line also contains a unicode char!)'
  myLogger.LogError(rc msg more)
 
  rc←1
  msg←'"',unicodeChar,'"'
- more←⊃'456',¨⊂'Summary" ',unicodeChar,'"of problems(even this line contains a unicode char!'
+ more←⊃'456',¨⊂'Summary" ',unicodeChar,'" of problems (even this line contains a unicode char!)'
  myLogger.LogError(rc msg more)
 
  →T.GoToTidyUp 0≠myLogger.errorCounter
 
- fileContents←⊃##.APLTreeUtils.ReadUtf8File myLogger.FullFilename
- →T.GoToTidyUp 10≠+/questionMark⍷,fileContents
+ fileContents←⊃FilesAndDirs.NGET myLogger.FullFilename
+ →T.GoToTidyUp 8≠+/questionMark⍷,fileContents
 
 ⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝ utf8←0
  myLogger.Close
- list←↑##.FilesAndDirs.Dir path,'/*.log'
- ##.FilesAndDirs.DeleteFile list
+ list←⊃FilesAndDirs.Dir path,'/*.log'
+ FilesAndDirs.DeleteFile list
 
  myLogger←⎕NEW ##.Logger(path'ansi' 'DATE' 1(2100 11 6 23 59 55))
  →T.GoToTidyUp 0≠myLogger.errorCounter
@@ -73,17 +73,17 @@
 
  →T.GoToTidyUp 0≠myLogger.errorCounter
 
- fileContents←⊃##.APLTreeUtils.ReadUtf8File myLogger.FullFilename
- →T.GoToTidyUp 29≠+/'?'⍷,fileContents
+ fileContents←↑⊃FilesAndDirs.NGET myLogger.FullFilename
+ →T.GoToTidyUp 25≠+/'?'⍷,fileContents
 
- list←↑##.FilesAndDirs.Dir path,'/*.log'
+ list←⊃FilesAndDirs.Dir path,'/*.log'
  myLogger.Close
- ##.FilesAndDirs.DeleteFile list
+ FilesAndDirs.DeleteFile list
 
  ⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝ utf8←1
  myLogger.Close
- list←↑##.FilesAndDirs.Dir path,'/*.log'
- ##.FilesAndDirs.DeleteFile list
+ list←⊃FilesAndDirs.Dir path,'/*.log'
+ FilesAndDirs.DeleteFile list
 
  myLogger←⎕NEW ##.Logger(path'UTf8' 'DATE' 1(2100 11 6 23 59 55))
  →T.GoToTidyUp 0≠myLogger.errorCounter
@@ -109,14 +109,14 @@
 
  →T.GoToTidyUp 0≠myLogger.errorCounter
 
- fileContents←⊃##.APLTreeUtils.ReadUtf8File myLogger.FullFilename
+ fileContents←↑⊃FilesAndDirs.NGET myLogger.FullFilename
  →T.GoToTidyUp 0≠+/'?'⍷,fileContents
  →T.GoToTidyUp 0=∨/'{{⍵/⍨2=+⌿0=⍵∘.|⍵}⍳⍵}100000'⍷,fileContents
  →T.GoToTidyUp 0=∨/'üäöÜÄÖß'⍷,fileContents
 
- list←↑##.FilesAndDirs.Dir path,'/*.log'
+ list←⊃FilesAndDirs.Dir path,'/*.log'
  myLogger.Close
- ##.FilesAndDirs.DeleteFile list
+ FilesAndDirs.DeleteFile list
 
 ⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝
  myLogger.Close
@@ -126,7 +126,8 @@
      myLogger←⎕NEW ##.Logger(,⊂parmSpace)
      →T.GoToTidyUp 1
  :Else
-     :If 'Invalid keyword(s): IAmUnknown'≢0⊃⎕DM
+     qdmx←⎕DMX
+     :If 'Invalid keyword(s): IAmUnknown'≢qdmx.EM
          →T.GoToTidyUp 1
      :EndIf
  :EndTrap
@@ -140,7 +141,8 @@
      myLogger←⎕NEW ##.Logger(,⊂parmSpace)
      →T.GoToTidyUp 1
  :Else
-     :If ~∧/⎕DM[0]{∨/⍵⍷⍵}¨'Invalid' 'keyword(s)' 'IAmAlsoUnknown' 'IAmUnknown' 'style' ⍝ necessary because sorting order is different between Classic and Unicode version!
+     qdmx←⎕DMX
+     :If ~∧/(⊂qdmx.EM){∨/⍵⍷⍵}¨'Invalid' 'keyword(s)' 'IAmAlsoUnknown' 'IAmUnknown' 'style' ⍝ necessary because sorting order is different between Classic and Unicode version!
          →T.GoToTidyUp 1
      :EndIf
  :EndTrap
@@ -155,7 +157,8 @@
      myLogger←⎕NEW ##.Logger(,⊂parmSpace)
      →T.GoToTidyUp 1
  :Else
-     :If ~∧/⎕DM[0]{∨/⍵⍷⍵}¨'Invalid' 'keyword(s)' 'IAmAlsoUnknown' 'IAmUnknown' 'style' ⍝ necessary because sorting order is different between Classic and Unicode version!
+     qdmx←⎕DMX
+     :If ~∧/(⊂qdmx.EM){∨/⍵⍷⍵}¨'Invalid' 'keyword(s)' 'IAmAlsoUnknown' 'IAmUnknown' 'style' ⍝ necessary because sorting order is different between Classic and Unicode version!
          →T.GoToTidyUp 1
      :EndIf
  :EndTrap
@@ -167,7 +170,8 @@
      myLogger←⎕NEW ##.Logger(,⊂parmSpace)
      →T.GoToTidyUp 1
  :Else
-     :If 'Missing: "active"'≢0⊃⎕DM
+     qdmx←⎕DMX
+     :If 'Missing: "active"'≢qdmx.EM
          →T.GoToTidyUp 1
      :EndIf
  :EndTrap
@@ -181,7 +185,8 @@
      myLogger←⎕NEW ##.Logger(,⊂parmSpace)
      →T.GoToTidyUp 1
  :Else
-     :If 'Invalid value: "encoding"'≢0⊃⎕DM
+     qdmx←⎕DMX
+     :If 'Invalid: "encoding"'≢qdmx.EM
          →T.GoToTidyUp 1
      :EndIf
  :EndTrap
@@ -220,9 +225,8 @@
 
  →T.GoToTidyUp 0≠myLogger.errorCounter
 
- fileContents←##.APLTreeUtils.ReadUtf8File myLogger.FullFilename
-
- →T.GoToTidyUp shouldBe≢∆RemoveTimestampAndTid ¯1↓1↓fileContents
+ fileContents←⊃FilesAndDirs.NGET myLogger.FullFilename 1
+ →T.GoToTidyUp shouldBe≢∆RemoveTimestampAndTid 1↓fileContents
  R←T._OK
 
 ∆TidyUp:
@@ -230,6 +234,6 @@
      myLogger.Close
  :EndTrap
  :Trap 0
-     list←↑##.FilesAndDirs.Dir path,'/*.log'
-     ##.FilesAndDirs.DeleteFile list
+     list←⊃FilesAndDirs.Dir path,'/*.log'
+     FilesAndDirs.DeleteFile list
  :EndTrap

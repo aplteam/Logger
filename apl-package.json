@@ -1,0 +1,1 @@
+{  alias: "",  api: "Logger",  assets: "",  date: "2021-01-19",  description: "Allows writing to LOG files; (almost) guaranteed to never break the application",  group: "aplteam",  name: "Logger",  project_url: "https://github.com/aplteam/Logger",  source: "",  tags: "apltree;log-files;logging;windows;linux;mac-os",  version: "5.0.0.18",}

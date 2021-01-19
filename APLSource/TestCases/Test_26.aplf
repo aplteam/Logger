@@ -1,19 +1,32 @@
- R←Test_26(stopFlag batchFlag);path;rc;msg;myLogger;list;⎕TRAP
+ R←Test_26(stopFlag batchFlag);path;rc;msg;myLogger;list;⎕TRAP;qdmx
 ⍝ This test calls LogError with an invalid right argument.
 ⍝ There was a bug in 2014-11 that in this case the function cashed due to the lack of an explicit result
  R←T._Failed
  ⎕TRAP←(999 'C' '. ⍝ Deliberate error')(0 'N')
 
  path←GetFileRoot,'LogFiles' ⍝ relative!
- :If ##.FilesAndDirs.IsDir path
-     list←↑##.FilesAndDirs.Dir path,'/*.log'
-     ##.FilesAndDirs.DeleteFile list
+ :If FilesAndDirs.IsDir path
+     list←⊃FilesAndDirs.Dir path,'/*.log'
+     FilesAndDirs.DeleteFile list
  :EndIf
 
  myLogger←⎕NEW ##.Logger(path'ascii' 'DATE')
  →T.FailsIf~0∊⍴rc←myLogger.LogError'a' 'dskcnsdkj' 3 4 5 6
 
- list←↑##.FilesAndDirs.Dir path,'/*.log'
- ##.FilesAndDirs.DeleteFile list
+ list←⊃FilesAndDirs.Dir path,'/*.log'
+ FilesAndDirs.DeleteFile list
+
+ myLogger←⎕NEW ##.Logger(,⊂path)
+ →T.PassesIf(,0)≡,myLogger.errorCounter
+ myLogger.LogError 1('Foo'('Goo'('Zoo' 'Boo'('a' 'bb'))))
+ →T.PassesIf(,1)≡,myLogger.errorCounter
+
+ myLogger.debug←1
+ :Trap 11
+     myLogger.LogError 1('Foo'('Goo'('Zoo' 'Boo'('a' 'bb'))))
+ :Else
+     qdmx←⎕DMX
+     →T.PassesIf'Invalid "msg"'≡qdmx.EM
+ :EndTrap
 
  R←T._OK

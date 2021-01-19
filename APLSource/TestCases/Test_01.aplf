@@ -4,8 +4,8 @@
  ⎕TRAP←(999 'C' '. ⍝ Deliberate error')(0 'N')
 
  path←GetFileRoot,'LogFiles'
- :If ##.FilesAndDirs.IsDir path
-     →T.FailsIf 0≠0⊃##.FilesAndDirs.RmDir path ⍝ Could not remove the directory "path" is pointing too?!'
+ :If FilesAndDirs.IsDir path
+     →T.FailsIf 0≠1⊃FilesAndDirs.RmDir path ⍝ Could not remove the directory "path" is pointing too?!'
  :EndIf
  shouldBe←''
 
@@ -22,10 +22,10 @@
  shouldBe,←⊂,buffer
  →T.GoToTidyUp 0≠myLogger.errorCounter
 
- fileContents←##.APLTreeUtils.ReadUtf8File myLogger.(path,filename)
- →T.GoToTidyUp shouldBe≢∆RemoveTimestampAndTid ¯1↓1↓fileContents
+ fileContents←⊃FilesAndDirs.NGET myLogger.(path,filename)1
+ →T.GoToTidyUp shouldBe≢∆RemoveTimestampAndTid 1↓fileContents
 
- list←↑##.FilesAndDirs.Dir path,'/*.log'
+ list←⊃FilesAndDirs.Dir path,'/*.log'
  R←T._OK
 
 ∆TidyUp:
@@ -33,5 +33,5 @@
      myLogger.Close
  :EndTrap
  :Trap 0
-     ##.FilesAndDirs.DeleteFile list
+     FilesAndDirs.DeleteFile list
  :EndTrap

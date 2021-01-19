@@ -4,9 +4,9 @@
  ⎕TRAP←(999 'C' '. ⍝ Deliberate error')(0 'N')
 
  path←GetFileRoot,'LogFiles'
- :If ##.FilesAndDirs.IsDir path
-     list←↑##.FilesAndDirs.Dir path,'/*.log'
-     ##.FilesAndDirs.DeleteFile list
+ :If FilesAndDirs.IsDir path
+     list←⊃FilesAndDirs.Dir path,'/*.log'
+     FilesAndDirs.DeleteFile list
  :EndIf
 
  myLogger←⎕NEW ##.Logger(path'ansi' 'DATE' 1(2100 11 6 23 59 55))
@@ -38,15 +38,13 @@
 
  →T.FailsIf 0≠myLogger.errorCounter
 
- list←(1+⍴path)↓¨↑##.FilesAndDirs.Dir path,'\'
- list/⍨←'.'≠↑¨list
- list←{⍵↓⍨-1+'.'⍳⍨⌽⍵}¨list
+ list←{2⊃⎕NPARTS ⍵}¨⊃FilesAndDirs.Dir path,'\'
  →T.FailsIf list≢,⊂'21001106'
 
- →T.FailsIf 0∊⍴##.APLTreeUtils.ReadUtf8File path,'\',(0⊃list),'.log'
+ →T.FailsIf 0=≢⊃FilesAndDirs.NGET path,'\',(⊃list),'.log'
 
  myLogger.Close
- list←↑##.FilesAndDirs.Dir path,'/*.log'
- ##.FilesAndDirs.DeleteFile list
+ list←⊃FilesAndDirs.Dir path,'/*.log'
+ FilesAndDirs.DeleteFile list
 
  R←T._OK

@@ -3,8 +3,8 @@
  R←T._Failed
  ⎕TRAP←(999 'C' '. ⍝ Deliberate error')(0 'N')
 
- list←↑##.FilesAndDirs.Dir'*.log'
- ##.FilesAndDirs.DeleteFile list
+ list←⊃FilesAndDirs.Dir'*.log'
+ FilesAndDirs.DeleteFile list
  myLogger←⎕NEW ##.Logger
  →T.FailsIf 0≠myLogger.errorCounter
  myLogger.printToSession←1
@@ -14,13 +14,13 @@
  myLogger.Log'next day!'
  →T.FailsIf 0≠myLogger.errorCounter
 
- list←↑##.FilesAndDirs.Dir'*.log'
- list/⍨←'.'≠↑¨list
+ list←⊃FilesAndDirs.Dir'*.log'
+ list/⍨←'.'≠⊃¨list
  list←{⍵↓⍨-1+'.'⍳⍨⌽⍵}¨list
  →T.FailsIf 1≠1↑⍴list
 
  myLogger.Close
- list←↑##.FilesAndDirs.Dir'*.log'
- ##.FilesAndDirs.DeleteFile list
+ list←⊃FilesAndDirs.Dir'*.log'
+ FilesAndDirs.DeleteFile list
 
  R←T._OK

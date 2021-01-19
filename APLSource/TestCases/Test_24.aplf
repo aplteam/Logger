@@ -11,4 +11,4 @@
  R←T._OK
 
 ∆TidyUp:
- ##.FilesAndDirs.DeleteFile fn
+ FilesAndDirs.DeleteFile fn

@@ -1,12 +1,14 @@
 # Logger
 
 
-`Logger` is a member of the APLTree library. The library is a collection of classes etc. that aim to support the Dyalog APL programmer. Search GitHub for "apltree" and you will find solutions to many every-day problems Dyalog APL programmers might have to solve.
+`Logger` is a member of the APLTree library. The library is a collection of classes etc. that aim to support the Dyalog APL programmer. For details see <https://github.com/aplteam/apltree/wiki>
+
+Search GitHub for "apltree" and you will find solutions to many every-day problems Dyalog APL programmers might have to solve.
 
 
 ## Overview 
 
-This class is designed to write log files as ANSI (default) or UTF-8 files. 
+`Logger` is designed to write log files as ANSI (default) or UTF-8 files. 
 
 You can create an instance without specifying any parameters at all but you might specify up to 6 parameters.
 Some but not all of these parameters can be changed later on as well.
@@ -15,17 +17,17 @@ By default an instance of the class creates a log file with the name "yyyymmdd.l
 
 Instead of accepting the defaults you can also let the class create "yyyymm.log" files or even "yyyy.log".
 
-Note that the main method, `Log`, does not do any kind of fancy formatting. It just accepts vectors of any kind as well as text matrices; performance is considered to be paramount. However, the method `LogError`  is different and does some formatting.
+The main method, `Log`, does not do any kind of fancy formatting. It just accepts vectors of any kind as well as text matrices; performance is considered to be paramount. However, the method `LogError`  is different and does some formatting.
 
-Note that by default the class makes intense use of error trapping to make sure that neither `Log` nor `LogError` will ever effect the hosting application.
+By default the class makes intense use of error trapping in order to make sure that neither `Log` nor `LogError` will ever affect the hosting application.
 
 ## Encoding 
 
-Note that for ANSI files with the Unicode version of Dyalog all non-ANSI characters are replaced by "?".
+By default "ANSI" is used as encoding option when opening/creating a log file. The reason is that this might save some space but more importantly many tools for processing Log files are still not capable of dealing with UTF8 files.
 
-Generally the encoding it determined by the interpreter. You can make sure that only ANSI chars are written to the log file by specifying "ANSI". "ANSI" might save you a bit space but normally not much since most characters in a log file are ANSI anyway.
+"ASCII" was an option in earlier version of `Logger`, when the Classic version of Dyalog was still supported. However, now it is deprecated. You may still specify it, but it will be converted to "ANSI" internally anyway.
 
-"ASCII" was an option in earlier version of `Logger`, when the Classic version of Dyalog was still supported. However, now it deprecated. You may still specify it, but it will be converted to "ANSI" internally anyway.
+For "UTF8" you may also specify "UTF-8" but it is converted into "UTF8".
 
 
 ## The methods 
@@ -36,43 +38,42 @@ Generally the encoding it determined by the interpreter. You can make sure that 
       {r}←Log msg 
 ```
 
-Writes `msg` to the Log File. Note that `msg` must be either a character scalar or a simple character vector, otherwise it is ignored. Note that `LogError` gives your more freedom in this respect - see there.
+Writes `msg` to the Log File. `msg` can be one of:
 
-`r` gets the message written to the log file together with the time stamp and thread no.
+* A character scalar (though this does not make too much sense)
+* A character vector
+* A character matrix
+* A vector of character vectors
 
-`msg` can be one of:
- * A vector
- * A matrix
- * A vector of vectors
+`r` gets the message written to the log file together with the time stamp and thread number.
 
 For best performance this function does not do any formatting. If you need a special formatting consider writing a cover function for `Log` or your own class deriving from `Logger`.
 
 ### The LogError method 
 
-This method is useful to log an error. This is a cover function of `Log`.
+This method is useful to log an error. It is a cover function of `Log`.
 
 You can specify 2-3 parameters:
- 1. The return code. Single integer. 0 means that `LogError` should not do anything at all.
- 1. The message (msg). This can be any array containig text or numeric data as long as the depth and rank are both lower than 3.
+ 1. The return code as a  single integer. 0 means that `LogError` should not do anything at all.
+ 1. The message (msg). This can be any array containing text or numeric data as long as the depth and rank are both lower than 3.
  1. More information (more); this is optional. This can be any kind of array.
 
-In case `rc ←→ 0`, `LogError` is doing nothing at all. Otherwise it writes `msg` into the log file and marks it up as an error. `msg` can be simple, a matrix or a nested vector although simple is recommended. `more` can be any array.
+In case `rc ←→ 0`, `LogError` is doing nothing at all. Otherwise it writes `msg` into the log file and marks it up as an error.
 
-If all is fine `r` is empty, otherwise it returns the message written to the log file.
+If `rc ←→ 0` then `r` is empty, otherwise it returns the message written to the log file.
 
-That allows you to do something like this:
+Examples:
 
 ```
     MyLoggerInstance.LogError 1 'The error message' ⎕DM
 ```
 
-or even:
 
 ```
     MyLoggerInstance.LogError rc 'FATAL ERROR' ('hello word' (1 2 3))
 ```
 
-While the `Log` method is fairly restrictive in order to avoid any performance penalties the method `LogError` offers more freedom because this is hardly causing any harm: you won't have thousands of errors per second, and even if you have them performance is the least of your worries then.
+While the `Log` method is fairly restrictive in order to avoid any performance penalties, the method `LogError` offers more freedom because this is hardly causing any harm: you won't have thousands of errors per second, and even if you have them, performance is the least of your worries then.
 
 ## Notes 
 
@@ -82,17 +83,15 @@ By default a file "{yyyymmdd}.log" is created within "path" or opened if it alre
 This default behaviour can be switched off by setting `autoReOpen` to 0.
 
 ### Error Trapping 
-By default all possible errors - accept invalid calls - are trapped withing the `Log`  method: a logging mechanism cannot be allowed to break an application which it should support. 
+By default all possible errors - accept invalid calls - are trapped withing the `Log` and `LogError` methods: a logging mechanism cannot be allowed to break an application which it should support. 
 
-One exception: when creating an instance of ""Logger"" fails that causes a crash but that means it was called with invalid parameters.
+One exception: when creating an instance of `Logger` fails that causes a crash, but that means it was called with invalid parameters.
 
 However, by setting `debug` and/or `printToSession` and/or `timestamp` the `Logger` class can be debugged.
 
 ### Preconditions 
 
-`Logger` needs the scripts `APLTreeUtils` and `WinFile`. While `APLTreeUtils` **must** be situated on the same level as `Logger` (because it is `:Included`), `WinFile` is expected to be found either on the same level as the `Logger`script or in `#` or in the namespace `Logger` got instantiated from.
-
-If neither of this is appropriate one can specify a reference `refToUtils` pointing to the correct namespace.
+Since version 6.0.0 `Logger` is expected to be consumed as a Tatin package, so you don't need to worry about dependencies.
 
 ## Sample session 
 
@@ -103,7 +102,7 @@ This code:
 ⍝ Exercise the "Log" method"
  myLogger.Log'this is my first entry!'
  myLogger.Log'Even' 'more' 'entries'
- myLogger.Log⊃'A' 'text' 'matrix'
+ myLogger.Log↑'A' 'text' 'matrix'
  myLogger.Log 1 2 3
  myLogger.Log('String')(⍳6)('Another string')
  myLogger.Log(1 2)(2 3⍴⍳6) ⍝ causes an error (trapped!)
@@ -142,12 +141,12 @@ results in this log file:
 2011-05-29 07:29:36                        4 5 6        
 ```
 
-Note that for the log entry written from its own thread the thread number is reported in the log file.
+Note that for the log entry written from its own thread, the thread number reported in the log file is non-zero.
 
 ## Constructors, fields, properties and methods 
 
 ```
-      ]ADOC.List Logger 
+      ]ADOC.List Logger -summary
 *** Logger (Class) ***
 
 Constructors:

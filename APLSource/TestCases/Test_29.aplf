@@ -1,0 +1,15 @@
+ R←Test_29(stopFlag batchFlag);⎕TRAP;version;date
+⍝ Exercises the `Version` function
+ R←T._Failed
+ ⎕TRAP←(999 'C' '. ⍝ Deliberate error')(0 'N')
+
+ version←##.Logger.Version
+ →T.PassesIf 3=≢version
+ →T.PassesIf'Logger'≡1⊃version
+ →T.PassesIf 3='.'+.=(2⊃version)
+ date←3⊃version
+ →T.PassesIf 10=≢date
+ →T.PassesIf date[5 8]∧.='-'
+ →T.PassesIf∧/date[(⍳10)~5 8]∊⎕D
+
+ R←T._OK

@@ -1,0 +1,25 @@
+ R←Test_28(stopFlag batchFlag);⎕TRAP;path;list;myLogger
+⍝ Opens a log file and then requests all sorts of properties
+ R←T._Failed
+ ⎕TRAP←(999 'C' '. ⍝ Deliberate error')(0 'N')
+
+ path←GetFileRoot,'LogFiles'
+ :If FilesAndDirs.IsDir path
+     list←⊃FilesAndDirs.Dir path,'/*.log'
+     FilesAndDirs.DeleteFile list
+ :EndIf
+
+ myLogger←⎕NEW ##.Logger(,⊂path)
+ →T.PassesIf'ANSI'≡myLogger.encoding
+ →T.PassesIf(,1)≡,myLogger.autoReOpen
+ →T.PassesIf'DATE'≡myLogger.filenameType
+ →T.PassesIf(,0)≡,myLogger.debug
+ →T.PassesIf(,0)≡,myLogger.printToSession
+ →T.PassesIf 0=≢myLogger.timestamp
+ →T.PassesIf(,1)≡,myLogger.active
+ →T.PassesIf(,1)≡,myLogger.fileFlag
+ →T.PassesIf 0=≢myLogger.filenamePrefix
+ →T.PassesIf 0=≢myLogger.filenamePostfix
+ →T.PassesIf'*** ERROR'≡myLogger.errorPrefix
+
+ R←T._OK

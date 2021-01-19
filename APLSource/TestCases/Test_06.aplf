@@ -4,8 +4,8 @@
  ⎕TRAP←(999 'C' '. ⍝ Deliberate error')(0 'N')
 
  path←GetFileRoot,'LogFiles'
- :If ##.FilesAndDirs.IsDir path
-     →T.FailsIf 0≠0⊃##.FilesAndDirs.RmDir path   ⍝ Could not remove the directory "path" is pointing too?!'
+ :If FilesAndDirs.IsDir path
+     →T.FailsIf 0≠⊃FilesAndDirs.RmDir path   ⍝ Could not remove the directory "path" is pointing too?!'
  :EndIf
 
  myLogger←⎕NEW ##.Logger(path'ANSI' 'DATE' 1(2100 11 6))
@@ -19,18 +19,18 @@
  →T.FailsIf 0≠myLogger.errorCounter
  myLogger.Close
 
- :If ##.FilesAndDirs.IsDir path
-     list←↑(##.FilesAndDirs.Dir path,'/*.*')
-     buffer←##.APLTreeUtils.ReadUtf8File 0⊃list
-     buffer←(0<↑¨⍴¨buffer)/buffer
-     buffer←⊃1↓¯1↓buffer ⍝ Drop first and last (open and close notification)
-     buffer←(∨/buffer∊'()')⌿buffer  ⍝ remove all lines without thread numbers
+ :If FilesAndDirs.IsDir path
+     list←↑(FilesAndDirs.Dir path,'/*.*')
+     buffer←⊃FilesAndDirs.NGET(⊃list)1
+     buffer←(0<≢¨buffer)/buffer
+     buffer←↑1↓¯1↓buffer                ⍝ Drop first and last (open and close notification)
+     buffer←(∨/buffer∊'()')⌿buffer      ⍝ Remove all lines without thread numbers
      buffer←{⍵/⍨{⍵∨≠\⍵}⍵∊'()'}¨↓buffer
-     buffer←⊃{⍎⍵{⍵\⍵/⍺}~⍵∊'()'}¨buffer
-     buffer←buffer[⍋buffer[;0];]
-     →T.FailsIf(⍴buffer[;0])≢⍴∪buffer[;0]
-     →T.FailsIf noOfThreads≠⍴buffer[;1]
-     ##.FilesAndDirs.DeleteFile list
+     buffer←↑{⍎⍵{⍵\⍵/⍺}~⍵∊'()'}¨buffer
+     buffer←buffer[⍋buffer[;1];]
+     →T.FailsIf(⍴buffer[;1])≢⍴∪buffer[;1]
+     →T.FailsIf noOfThreads≠⍴buffer[;2]
+     FilesAndDirs.DeleteFile list
  :EndIf
 
  R←T._OK

@@ -4,9 +4,9 @@
  ⎕TRAP←(999 'C' '. ⍝ Deliberate error')(0 'N')
 
  path←GetFileRoot,'LogFiles'
- :If ##.FilesAndDirs.IsDir path
-     list←↑##.FilesAndDirs.Dir path,'/*.log'
-     ##.FilesAndDirs.DeleteFile list
+ :If FilesAndDirs.IsDir path
+     list←⊃FilesAndDirs.Dir path,'/*.log'
+     FilesAndDirs.DeleteFile list
  :EndIf
 
  cs←##.Logger.CreatePropertySpace
@@ -20,8 +20,8 @@
  myLogger.LogError 1 'This should ALSO appear in the session but NOT in the log file' 'more'
  myLogger.Log'This should ...' '...also appear in ...' '...the session but NOT...' '... in the log file' 'With a very very very very very (indeed!) very long message at the end!'
 
- :If ##.FilesAndDirs.IsDir path
-     list←↑##.FilesAndDirs.Dir path,'/*.log'
+ :If FilesAndDirs.IsDir path
+     list←⊃FilesAndDirs.Dir path,'/*.log'
      →T.FailsIf~0∊⍴list
  :EndIf
 
@@ -34,18 +34,18 @@
 
  →T.FailsIf 0≠myLogger.errorCounter
 
- :If ##.FilesAndDirs.IsDir path
-     list←↑##.FilesAndDirs.Dir path,'/*.log'
+ :If FilesAndDirs.IsDir path
+     list←⊃FilesAndDirs.Dir path,'/*.log'
      →T.FailsIf(,1)≢⍴list
  :EndIf
 
  myLogger.Close
- buffer←##.APLTreeUtils.ReadUtf8File 0⊃list
- buffer←(0<↑∘⍴¨buffer)/buffer
+ buffer←⊃FilesAndDirs.NGET(⊃list)1
+ buffer←(0<≢¨buffer)/buffer
  →T.FailsIf 4≠⍴buffer
  →T.FailsIf~∧/∨/¨'ERROR' 'Third' 'Forth'⍷¨⊂{⎕ML←3 ⋄ ∊⍵}buffer
 
- ##.FilesAndDirs.DeleteFile list
+ FilesAndDirs.DeleteFile list
 
  cs←##.Logger.CreatePropertySpace
  cs.printToSession←1
@@ -59,9 +59,9 @@
  myLogger.LogError 1 'This should also not appear in the session and in the log file' 'more'   ⍝ Depricated
  myLogger.Log'This should ...' '...also not appear in ...' '...the session and...' '... in the log file' 'With a very very very very very (indeed!) very long message at the end!'
 
- :If ##.FilesAndDirs.IsDir path
-     list←↑##.FilesAndDirs.Dir path,'/*.log'
-     →T.FailsIf~0∊⍴list
+ :If FilesAndDirs.IsDir path
+     list←⊃FilesAndDirs.Dir path,'/*.log'
+     →T.FailsIf 0≠≢list
  :EndIf
 
  myLogger.fileFlag←1
@@ -73,9 +73,9 @@
 
  →T.FailsIf 0≠myLogger.errorCounter
 
- :If ##.FilesAndDirs.IsDir path
-     list←↑##.FilesAndDirs.Dir path,'/*.log'
-     →T.FailsIf~0∊⍴list
+ :If FilesAndDirs.IsDir path
+     list←⊃FilesAndDirs.Dir path,'/*.log'
+     →T.FailsIf 0≠≢list
  :EndIf
 
  myLogger.active←1
@@ -86,14 +86,14 @@
  myLogger.Log'Fifth entry'
  myLogger.LogError 1 'Last entry (number 6)' 'more'
 
- :If ##.FilesAndDirs.IsDir path
-     list←↑##.FilesAndDirs.Dir path,'/*.log'
-     →T.FailsIf(,1)≢⍴list
+ :If FilesAndDirs.IsDir path
+     list←⊃FilesAndDirs.Dir path,'/*.log'
+     →T.FailsIf 1≢≢list
  :EndIf
 
  myLogger.Close
- buffer←##.APLTreeUtils.ReadUtf8File 0⊃list
- buffer←(0<↑∘⍴¨buffer)/buffer
+ buffer←⊃FilesAndDirs.NGET(⊃list)1
+ buffer←(0<≢¨buffer)/buffer
  →T.FailsIf 4≠⍴buffer
  →T.FailsIf~∧/∨/¨'ERROR' 'Third' 'Forth'⍷¨⊂{⎕ML←3 ⋄ ∊⍵}buffer
 

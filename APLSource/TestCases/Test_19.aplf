@@ -7,9 +7,9 @@
 
  path←'LogFiles' ⍝ relative!
  isUnicode←80=⎕DR' '
- :If ##.FilesAndDirs.IsDir path
-     list←↑##.FilesAndDirs.Dir path,'/*.log'
-     ##.FilesAndDirs.DeleteFile list
+ :If FilesAndDirs.IsDir path
+     list←⊃FilesAndDirs.Dir path,'/*.log'
+     FilesAndDirs.DeleteFile list
  :EndIf
 
  parmSpace←##.Logger.CreatePropertySpace
@@ -28,11 +28,11 @@
 
  →T.FailsIf 0≠myLogger.errorCounter
 
- buffer←##.APLTreeUtils.ReadUtf8File myLogger.FullFilename
- →T.FailsIf 3≠⍴buffer
+ buffer←⊃FilesAndDirs.NGET myLogger.FullFilename 1
+ →T.FailsIf 2≠⍴buffer
 
  myLogger.Close
- list←↑##.FilesAndDirs.Dir path,'/*.log'
- ##.FilesAndDirs.DeleteFile list
+ list←⊃FilesAndDirs.Dir path,'/*.log'
+ FilesAndDirs.DeleteFile list
 
  R←T._OK

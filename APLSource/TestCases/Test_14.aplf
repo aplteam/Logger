@@ -1,12 +1,12 @@
- R←Test_14(stopFlag batchFlag);path;myLogger;list;rc;more;msg;⎕TRAP
+ R←Test_14(stopFlag batchFlag);path;myLogger;list;rc;more;msg;⎕TRAP;qdmx
 ⍝ Tests LogError with all sorts of arrays as "more" as well as an ill-formed right argument and other stuff.
  R←T._Failed
  ⎕TRAP←(999 'C' '. ⍝ Deliberate error')(0 'N')
 
  path←GetFileRoot,'LogFiles' ⍝ relative!
- :If ##.FilesAndDirs.IsDir path
-     list←↑##.FilesAndDirs.Dir path,'/*.log'
-     ##.FilesAndDirs.DeleteFile list
+ :If FilesAndDirs.IsDir path
+     list←⊃FilesAndDirs.Dir path,'/*.log'
+     FilesAndDirs.DeleteFile list
  :EndIf
 
  myLogger←⎕NEW ##.Logger(path'ansi' 'DATE' 1(2100 11 6 23 59 55))
@@ -32,21 +32,23 @@
      myLogger.LogError(rc)
      →T.FailsIf 1
  :Else
-     →T.FailsIf'Length error - right argument'≢0⊃⎕DM
+     qdmx←⎕DMX
+     →T.FailsIf'Length error - right argument'≢qdmx.EM
  :EndTrap
 
  :Trap 6
      myLogger.LogError(rc rc rc rc)
      →T.FailsIf 1
  :Else
-     →T.FailsIf'Length error - right argument'≢0⊃⎕DM
+     qdmx←⎕DMX
+     →T.FailsIf'Length error - right argument'≢qdmx.EM
  :EndTrap
 
- list←↑##.FilesAndDirs.Dir path,'/*.log'
- →T.FailsIf 0∊⍴⊃##.APLTreeUtils.ReadUtf8File 0⊃list
+ list←⊃FilesAndDirs.Dir path,'/*.log'
+ →T.FailsIf 0=≢⊃⊃FilesAndDirs.NGET⊃list
 
  myLogger.Close
- list←↑##.FilesAndDirs.Dir path,'/*.log'
- ##.FilesAndDirs.DeleteFile list
+ list←⊃FilesAndDirs.Dir path,'/*.log'
+ FilesAndDirs.DeleteFile list
 
  R←T._OK

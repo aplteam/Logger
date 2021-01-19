@@ -4,9 +4,9 @@
  ⎕TRAP←(999 'C' '. ⍝ Deliberate error')(0 'N')
 
  path←GetFileRoot,'LogFiles'
- :If ##.FilesAndDirs.IsDir path
-     list←↑##.FilesAndDirs.Dir path,'/*.log'
-     ##.FilesAndDirs.DeleteFile list
+ :If FilesAndDirs.IsDir path
+     list←⊃FilesAndDirs.Dir path,'/*.log'
+     FilesAndDirs.DeleteFile list
  :EndIf
  myLogger←⎕NEW ##.Logger(path'UTF8')
  →T.FailsIf 0≠myLogger.errorCounter
@@ -17,8 +17,8 @@
  myLogger.Log'next day!'
  →T.FailsIf 0≠myLogger.errorCounter
 
- list←↑##.FilesAndDirs.Dir path,'\'
- list/⍨←'.'≠↑¨list
+ list←⊃FilesAndDirs.Dir path,'\'
+ list/⍨←'.'≠⊃¨list
  list←{⍵↓⍨-1+'.'⍳⍨⌽⍵}¨list
  →T.FailsIf 1≠1↑⍴list
  myLogger.Close

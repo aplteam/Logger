@@ -1,13 +1,13 @@
- R←Test_20(stopFlag batchFlag);path;isUnicode;list;parmSpace;myLogger;msg;⎕TRAP
+ R←Test_20(stopFlag batchFlag);path;isUnicode;list;parmSpace;myLogger;msg;⎕TRAP;qdmx
 ⍝ Couple of parameters associated with filenames.
  R←T._Failed
  ⎕TRAP←(999 'C' '. ⍝ Deliberate error')(0 'N')
 
  path←GetFileRoot,'LogFiles'
  isUnicode←80=⎕DR' '
- :If ##.FilesAndDirs.IsDir path
-     list←↑##.FilesAndDirs.Dir path,'/*.log'
-     ##.FilesAndDirs.DeleteFile list
+ :If FilesAndDirs.IsDir path
+     list←⊃FilesAndDirs.Dir path,'/*.log'
+     FilesAndDirs.DeleteFile list
  :EndIf
 
  parmSpace←##.Logger.CreatePropertySpace
@@ -21,7 +21,8 @@
  :Trap 11
      myLogger←⎕NEW ##.Logger(,⊂parmSpace)
  :Else
-     →T.FailsIf'"filename" MUST NOT be set with autoReOpen=1'≡1⊃⎕DM
+     qdmx←⎕DMX
+     →T.FailsIf'"filename" MUST NOT be set with autoReOpen=1'≢qdmx.EM
  :EndTrap
 
  parmSpace.filename←''
@@ -31,8 +32,8 @@
 
  myLogger.Close
  ⎕EX'myLogger'
- list←↑##.FilesAndDirs.Dir path,'/*.log'
- ##.FilesAndDirs.DeleteFile list
+ list←⊃FilesAndDirs.Dir path,'/*.log'
+ FilesAndDirs.DeleteFile list
 
  parmSpace←##.Logger.CreatePropertySpace
  parmSpace.debug←1
@@ -47,7 +48,7 @@
  →T.FailsIf parmSpace.filenamePrefix{⍺≢(⍴⍺)↑⍵}myLogger.filename
 
  myLogger.Close
- list←↑##.FilesAndDirs.Dir path,'/*.log'
- ##.FilesAndDirs.DeleteFile list
+ list←⊃FilesAndDirs.Dir path,'/*.log'
+ FilesAndDirs.DeleteFile list
 
  R←T._OK

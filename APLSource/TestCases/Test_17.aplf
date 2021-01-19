@@ -4,13 +4,13 @@
  ⎕TRAP←(999 'C' '. ⍝ Deliberate error')(0 'N')
 
  path←GetFileRoot,'LogFiles' ⍝ relative!
- :If ##.FilesAndDirs.IsDir path
-     list←↑##.FilesAndDirs.Dir path,'/*.log'
-     ##.FilesAndDirs.DeleteFile list
+ :If FilesAndDirs.IsDir path
+     list←⊃FilesAndDirs.Dir path,'/*.log'
+     FilesAndDirs.DeleteFile list
  :EndIf
 
  timestamp←2100 11 6 23 59 55
- fts←' ',⍨##.APLTreeUtils.FormatDateTime timestamp    ⍝ Formatted timestamp
+ fts←' ',⍨APLTreeUtils2.FormatDateTime timestamp    ⍝ Formatted timestamp
  myLogger←⎕NEW ##.Logger(path'ascii' 'DATE' 1 timestamp)
  →T.FailsIf 0≠myLogger.errorCounter
  myLogger.printToSession←1
@@ -41,16 +41,16 @@
  buffer,←⊂'RC=',(⍕rc),'; 1',msg
  buffer,←'23',¨msg msg
 
- myLogger.LogError rc(⊃'456',¨msg msg msg)
+ myLogger.LogError rc(↑'456',¨msg msg msg)
  buffer,←⊂'RC=',(⍕rc),'; 4',msg
  buffer,←'56',¨msg msg
 
- fileContents←1↓¯1↓##.APLTreeUtils.ReadUtf8File myLogger.FullFilename
+ fileContents←1↓⊃FilesAndDirs.NGET myLogger.FullFilename 1
 
- →T.FailsIf(⎕FMT⊃buffer~¨⊂' #')≢(⊃(∆RemoveTimestampAndTid fileContents)~¨⊂' #')
+ →T.FailsIf(⎕FMT↑buffer~¨⊂' #')≢(↑(∆RemoveTimestampAndTid fileContents)~¨⊂' #')
 
  myLogger.Close
- list←↑##.FilesAndDirs.Dir path,'/*.log'
- ##.FilesAndDirs.DeleteFile list
+ list←⊃FilesAndDirs.Dir path,'/*.log'
+ FilesAndDirs.DeleteFile list
 
  R←T._OK

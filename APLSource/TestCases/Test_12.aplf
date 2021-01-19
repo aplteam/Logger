@@ -4,9 +4,9 @@
  ⎕TRAP←(999 'C' '. ⍝ Deliberate error')(0 'N')
 
  path←GetFileRoot,'LogFiles'
- :If ##.FilesAndDirs.IsDir path
-     list←↑##.FilesAndDirs.Dir path,'/*.log'
-     ##.FilesAndDirs.DeleteFile list
+ :If FilesAndDirs.IsDir path
+     list←⊃FilesAndDirs.Dir path,'/*.log'
+     FilesAndDirs.DeleteFile list
  :EndIf
 
  cs←##.Logger.CreatePropertySpace
@@ -19,8 +19,8 @@
  myLogger.Log'this is my first entry!'          ⍝ not supposed to appear in the log file because of active←0
  myLogger.LogError 1 'Second entry' 'more'      ⍝ ditto
 
- :If ##.FilesAndDirs.IsDir path
-     list←↑##.FilesAndDirs.Dir path,'/*.log'
+ :If FilesAndDirs.IsDir path
+     list←⊃FilesAndDirs.Dir path,'/*.log'
      →T.FailsIf~0∊⍴list
  :EndIf
 
@@ -33,18 +33,18 @@
 
  →T.FailsIf 0≠myLogger.errorCounter
 
- :If ##.FilesAndDirs.IsDir path
-     list←↑##.FilesAndDirs.Dir path,'/*.log'
+ :If FilesAndDirs.IsDir path
+     list←⊃FilesAndDirs.Dir path,'/*.log'
      →T.FailsIf(,1)≢⍴list
  :EndIf
 
  fn←myLogger.FullFilename
  myLogger.Close
- buffer←##.APLTreeUtils.ReadUtf8File fn
- buffer←(0<↑∘⍴¨buffer)/buffer
+ buffer←⊃FilesAndDirs.NGET fn 1
+ buffer←(0<≢¨buffer)/buffer
  →T.FailsIf 5≠⍴buffer ⍝ Because all other line were suppressed by active←0
  →T.FailsIf~∧/∨/¨'ERROR' 'Third' 'Forth'⍷¨⊂{⎕ML←3 ⋄ ∊⍵}buffer
 
- ##.FilesAndDirs.DeleteFile list
+ FilesAndDirs.DeleteFile list
 
  R←T._OK
