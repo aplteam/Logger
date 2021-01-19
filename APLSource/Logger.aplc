@@ -47,8 +47,8 @@
       :Access Public shared
       ⍝ * 5.0.0
       ⍝   * BREAKING CHANGES:
-      ⍝     * Requieres at least Dyalog 18.0
-      ⍝     * Requieres the class `APLTreeUtils2`
+      ⍝     * Requires at least Dyalog 18.0
+      ⍝     * Requires the class `APLTreeUtils2`
       ⍝     * Now delivered as a Tatin package
       ⍝   * Documentation improved
       ⍝   * Internal changes:
