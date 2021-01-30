@@ -1,13 +1,10 @@
- {r}←Initialize;⎕TRAP;parent;l
+ {r}←Initialize;⎕TRAP;parent
  ⎕TRAP←0 'S'
  r←⍬
  {}⎕SE.UCMD'cd ',AcreConfig.ProjectFolder
+ ⎕WSID←AcreConfig.ProjectFolder,'project.dws'
  parent←⍕⎕THIS
- :If 0<≢l←⎕SE.Tatin.LoadDependencies'./packages/'parent
-     ⎕←'Loaded into ',parent,': ',⊃{⍺,',',⍵}/⍕¨l
- :EndIf
+ {}⎕SE.Tatin.LoadDependencies'./packages/'parent
  parent,←'.TestCases'
- :If 0<≢l←⎕SE.Tatin.LoadDependencies'./packages_dev/'parent
-     ⎕←'Loaded into ',parent,': ',⊃{⍺,',',⍵}/⍕¨l
- :EndIf
+ {}⎕SE.Tatin.LoadDependencies'./packages_dev/'parent
 ⍝Done

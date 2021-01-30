@@ -1,5 +1,4 @@
  Prepare;testPath;testFilename;ask;answer
-⍝ Useful to prepare test cases for execution
  ⎕IO←1 ⋄ ⎕ML←1
  T←⎕NEW Tester2 ⎕THIS
  testPath←(⊃1 ⎕NPARTS''),'TestResults'

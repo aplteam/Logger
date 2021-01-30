@@ -40,7 +40,7 @@
 
     ∇ r←Version
       :Access Public shared
-      r←'Logger' '5.0.0.18' '2021-01-19'
+      r←'Logger' '5.0.0.19' '2021-01-19'
     ∇
 
     ∇ History
