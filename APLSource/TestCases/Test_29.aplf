@@ -6,7 +6,7 @@
  version←##.Logger.Version
  →T.PassesIf 3=≢version
  →T.PassesIf'Logger'≡1⊃version
- →T.PassesIf 3='.'+.=(2⊃version)
+ →T.PassesIf 2='.'+.=(2⊃version)
  date←3⊃version
  →T.PassesIf 10=≢date
  →T.PassesIf date[5 8]∧.='-'

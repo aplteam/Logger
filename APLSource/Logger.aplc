@@ -40,11 +40,13 @@
 
     ∇ r←Version
       :Access Public shared
-      r←'Logger' '5.0.0.19' '2021-01-19'
+      r←'Logger' '5.0.1+22' '2021-03-02'
     ∇
 
     ∇ History
       :Access Public shared
+      ⍝ * 5.0.1
+      ⍝   * Package config corrected
       ⍝ * 5.0.0
       ⍝   * BREAKING CHANGES:
       ⍝     * Requires at least Dyalog 18.0
