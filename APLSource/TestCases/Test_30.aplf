@@ -1,10 +1,17 @@
- R←Test_30(stopFlag batchFlag);⎕TRAP;version;date;myLogger;parms;delay
+ R←Test_30(stopFlag batchFlag);⎕TRAP;version;date;myLogger;parms;delay;path
 ⍝ Exercise all sorts of parameters that have in impact on `Open`
  R←T._Failed
  ⎕TRAP←(999 'C' '. ⍝ Deliberate error')(0 'N')
 
+
+ path←GetFileRoot,'LogFiles'
+ :If FilesAndDirs.IsDir path
+     →T.FailsIf 0≠1⊃FilesAndDirs.RmDir path ⍝ Could not remove the directory "path" is pointing too?!'
+ :EndIf
+
  delay←0.1
  parms←##.Logger.CreateParms
+ parms.path←path
  myLogger←⎕NEW ##.Logger(,⊂parms)
  ⎕DL delay
  parms.filenameType←'MONTH'
@@ -15,3 +22,6 @@
  ⎕DL delay
 
  R←T._OK
+
+∆TidyUp:
+ :Trap 0 ⋄ FilesAndDirs.DeleteFile list ⋄ :EndTrap

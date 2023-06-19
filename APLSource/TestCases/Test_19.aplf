@@ -5,7 +5,10 @@
  R←T._Failed
  ⎕TRAP←(999 'C' '. ⍝ Deliberate error')(0 'N')
 
- path←'LogFiles' ⍝ relative!
+ path←GetFileRoot,'LogFiles'
+ :If FilesAndDirs.IsDir path
+     →T.FailsIf 0≠1⊃FilesAndDirs.RmDir path ⍝ Could not remove the directory "path" is pointing too?!'
+ :EndIf
  isUnicode←80=⎕DR' '
  :If FilesAndDirs.IsDir path
      list←⊃FilesAndDirs.Dir path,'/*.log'
@@ -19,20 +22,18 @@
  parmSpace.active←1
  parmSpace.filename←'20000102'
  parmSpace.autoReOpen←0
-
  myLogger←⎕NEW ##.Logger(,⊂parmSpace)
- →T.FailsIf 0≠myLogger.errorCounter
-
+ →T.GoToTidyUp 0≠myLogger.errorCounter
  msg←'There is no problem'
  myLogger.Log msg
-
- →T.FailsIf 0≠myLogger.errorCounter
-
+ →T.GoToTidyUp 0≠myLogger.errorCounter
  buffer←⊃FilesAndDirs.NGET myLogger.FullFilename 1
- →T.FailsIf 2≠⍴buffer
-
+ →T.GoToTidyUp 2≠≢buffer
  myLogger.Close
  list←⊃FilesAndDirs.Dir path,'/*.log'
  FilesAndDirs.DeleteFile list
 
  R←T._OK
+
+∆TidyUp:
+ :Trap 0 ⋄ FilesAndDirs.DeleteFile list ⋄ :EndTrap
