@@ -19,5 +19,5 @@
   source: "APLSource/Logger.aplc",
   tags: "log-files,logging",
   userCommandScript: "",
-  version: "5.0.1+24",
+  version: "6.0.0+25",
 }
