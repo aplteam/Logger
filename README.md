@@ -1,19 +1,14 @@
 # Logger
 
 
-`Logger` is a member of the APLTree library. The library is a collection of classes etc. that aim to support the Dyalog APL programmer. For details see <https://github.com/aplteam/apltree/wiki>
-
-Search GitHub for "apltree" and you will find solutions to many every-day problems Dyalog APL programmers might have to solve.
-
-
 ## Overview 
 
 `Logger` is designed to write log files as ANSI (default) or UTF-8 files. 
 
-You can create an instance without specifying any parameters at all but you might specify up to 6 parameters.
+You can create an instance without specifying any parameters at all, but you might specify up to 6 parameters.
 Some but not all of these parameters can be changed later on as well.
 
-By default an instance of the class creates a log file with the name "yyyymmdd.log". When a new day puts in an appearance this file is closed and a new one is opened automatically.
+By default an instance of the class creates a log file with the name "yyyymmdd.log". When a new day puts in an appearance, this file is closed and a new one is opened automatically.
 
 Instead of accepting the defaults you can also let the class create "yyyymm.log" files or even "yyyy.log".
 
@@ -23,9 +18,9 @@ By default the class makes intense use of error trapping in order to make sure t
 
 ## Encoding 
 
-By default "ANSI" is used as encoding option when opening/creating a log file. The reason is that this might save some space but more importantly many tools for processing Log files are still not capable of dealing with UTF8 files.
+By default "ANSI" is used as encoding option when opening/creating a log file. One reason is that this might well save some space. More importantly, many tools for processing log files are still not capable of dealing with UTF8 files.
 
-"ASCII" was an option in earlier version of `Logger`, when the Classic version of Dyalog was still supported. However, now it is deprecated. You may still specify it, but it will be converted to "ANSI" internally anyway.
+"ASCII" was an option in earlier versions of `Logger`, when the Classic version of Dyalog was still supported. However, now it is deprecated. You may still specify it, but it will be converted to "ANSI" internally anyway.
 
 For "UTF8" you may also specify "UTF-8" but it is converted into "UTF8".
 
@@ -38,7 +33,7 @@ For "UTF8" you may also specify "UTF-8" but it is converted into "UTF8".
       {r}←Log msg 
 ```
 
-Writes `msg` to the Log File. `msg` can be one of:
+`Log` writes `msg` to the Log File. `msg` can be one of:
 
 * A character scalar (though this does not make too much sense)
 * A character vector
@@ -47,15 +42,15 @@ Writes `msg` to the Log File. `msg` can be one of:
 
 `r` gets the message written to the log file together with the time stamp and thread number.
 
-For best performance this function does not do any formatting. If you need a special formatting consider writing a cover function for `Log` or your own class deriving from `Logger`.
+For best performance this function does not do any formatting. If you need special formatting, consider writing a cover function for `Log` or your own class deriving from `Logger`.
 
 ### The LogError method 
 
 This method is useful to log an error. It is a cover function of `Log`.
 
 You can specify 2-3 parameters:
- 1. The return code as a  single integer. 0 means that `LogError` should not do anything at all.
- 1. The message (msg). This can be any array containing text or numeric data as long as the depth and rank are both lower than 3.
+ 1. A  single integer that is considered a return code. 0 means that `LogError` should not do anything at all.
+ 1. The message (msg). This can be any array containing text or numeric data as long as the depth and rank are both lower than `|3`.
  1. More information (more); this is optional. This can be any kind of array.
 
 In case `rc ←→ 0`, `LogError` is doing nothing at all. Otherwise it writes `msg` into the log file and marks it up as an error.
@@ -83,7 +78,7 @@ By default a file "{yyyymmdd}.log" is created within "path" or opened if it alre
 This default behaviour can be switched off by setting `autoReOpen` to 0.
 
 ### Error Trapping 
-By default all possible errors - accept invalid calls - are trapped withing the `Log` and `LogError` methods: a logging mechanism cannot be allowed to break an application which it should support. 
+By default all possible errors - accept invalid calls - are trapped within the `Log` and `LogError` methods: a logging mechanism cannot be allowed to break an application. 
 
 One exception: when creating an instance of `Logger` fails that causes a crash, but that means it was called with invalid parameters.
 
@@ -91,7 +86,7 @@ However, by setting `debug` and/or `printToSession` and/or `timestamp` the `Logg
 
 ### Preconditions 
 
-Since version 6.0.0 `Logger` is expected to be consumed as a Tatin package, so you don't need to worry about dependencies.
+Since version 5 `Logger` is expected to be consumed as a Tatin package, so you don't need to worry about dependencies.
 
 ## Sample session 
 
